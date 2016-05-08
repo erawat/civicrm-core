@@ -220,20 +220,16 @@ class CRM_Utils_Type {
         break;
 
       case 'MysqlColumnName':
-        if (CRM_Utils_Rule::MysqlColumnName($data)) {
-          return str_replace('`', '', $data);
-        }
-        break;
-
-      case 'MysqlColumnNameStrict':
-        if (CRM_Utils_Rule::MysqlColumnNameStrict($data)) {
+        if (CRM_Utils_Rule::mysqlColumnName($data)) {
+          $parts = explode('.', $data);
+          $data = '`' . implode('`.`', $parts) . '`';
           return $data;
         }
         break;
 
       case 'MysqlOrderByDirection':
-        if (CRM_Utils_Rule::MysqlOrderByDirection($data)) {
-          return $data;
+        if (CRM_Utils_Rule::mysqlOrderByDirection($data)) {
+          return strtolower($data);
         }
         break;
 
@@ -331,6 +327,18 @@ class CRM_Utils_Type {
 
         if (CRM_Utils_Rule::validContact($data)) {
           return $data;
+        }
+        break;
+
+      case 'MysqlColumnName':
+        if (CRM_Utils_Rule::mysqlColumnName($data)) {
+          return $data;
+        }
+        break;
+
+      case 'MysqlOrderByDirection':
+        if (CRM_Utils_Rule::mysqlOrderByDirection($data)) {
+          return strtolower($data);
         }
         break;
 

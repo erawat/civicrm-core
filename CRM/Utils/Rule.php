@@ -71,15 +71,19 @@ class CRM_Utils_Rule {
   }
 
   /**
+   * Validate an acceptable column name for sorting results.
+   *
    * @param $str
    *
    * @return bool
    */
-  public static function MysqlColumnName($str) {
-    //  check the length.
-    // This check can be incorrect for the <table>.<column> format, which can be
-    // a problem.
-    if (empty($str) || strlen($str) > 64) {
+  public static function mysqlColumnName($str) {
+    // Check not empty.
+    if (empty($str)) {
+      return FALSE;
+    }
+    // Ensure it only contains valid characters (alphanumeric and underscores).
+    if (!preg_match('/^\w{1,64}(\.\w{1,64})?$/i', $str)) {
       return FALSE;
     }
     return TRUE;
@@ -90,34 +94,12 @@ class CRM_Utils_Rule {
    *
    * @return bool
    */
-  public static function MysqlColumnNameStrict($str) {
-    //  check the length.
-    if (empty($str) || strlen($str) > 64) {
-      return FALSE;
-    }
-    // make sure it only contains valid characters (alphanumeric and underscores)
-    // This check doesn't support the <table>.<column> format, which can be
-    // a problem.
-    // @todo : check with the standards (http://dev.mysql.com/doc/refman/5.5/en/identifiers.html)
-    if (!preg_match('/^[\w_]+$/i', $str)) {
-      return FALSE;
-    }
-    return TRUE;
-  }
-
-
-  /**
-   * @param $str
-   *
-   * @return bool
-   */
-  public static function MysqlOrderByDirection($str) {
+  public static function mysqlOrderByDirection($str) {
     if (!preg_match('/^(asc|desc)$/i', $str)) {
       return FALSE;
     }
     return TRUE;
   }
-
 
   static function qfVariable($str) {
     // check length etc
