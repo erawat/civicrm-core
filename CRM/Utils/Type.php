@@ -140,6 +140,18 @@ class CRM_Utils_Type {
   }
 
   /**
+   * Helper function to call escape on arrays
+   *
+   * @see escape
+   */
+  public static function escapeAll($data, $type, $abort = TRUE) {
+    foreach ($data as $key => $value) {
+      $data[$key] = CRM_Utils_Type::escape($value, $type, $abort);
+    }
+    return $data;
+  }
+
+  /**
    * Verify that a variable is of a given type
    *
    * @param mixed   $data         The variable
