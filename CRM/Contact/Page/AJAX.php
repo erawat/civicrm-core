@@ -1296,8 +1296,7 @@ LIMIT {$offset}, {$rowCount}
     // get the contact relationships
     $relationships = CRM_Contact_BAO_Relationship::getContactRelationshipSelector($params);
 
-    // TODO: Filter this
-    $iFilteredTotal = $iTotal = $params['total'];
+    $iFilteredTotal = $iTotal = CRM_Utils_Type::validate($params['total'], 'Integer');
     $selectorElements = array(
       'relation',
       'name',
