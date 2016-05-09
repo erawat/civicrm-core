@@ -99,6 +99,13 @@
 
   {capture assign='reqMark'}<span class="marker" title="{ts}This field is required.{/ts}">*</span>{/capture}
   <div class="crm-contribution-page-id-{$contributionPageID} crm-block crm-contribution-main-form-block">
+
+  {if $contact_id}
+    <div class="messages status no-popup crm-not-you-message">
+      {ts 1=$display_name}Welcome %1{/ts}. (<a href="{crmURL p='civicrm/contribute/transact' q="cid=0&reset=1&id=`$contributionPageID`"}" title="{ts}Click here to do this for a different person.{/ts}">{ts 1=$display_name}Not %1, or want to do this for a different person{/ts}</a>?)
+    </div>
+  {/if}
+
   <div id="intro_text" class="crm-section intro_text-section">
     {$intro_text}
   </div>
@@ -458,6 +465,7 @@
 
   cj(function() {
     toggleConfirmButton();
+    skipPaymentMethod();
   });
 
   function showHidePayPalExpressOption() {
@@ -471,7 +479,44 @@
     }
   }
 
-  cj(function(){
+  function showHidePayment(flag) {
+    var payment_options = cj(".payment_options-group");
+    var payment_processor = cj("div.payment_processor-section");
+    var payment_information = cj("div#payment_information");
+    if (flag) {
+      payment_options.hide();
+      payment_processor.hide();
+      payment_information.hide();
+      // also unset selected payment methods
+      cj('input[name="payment_processor"]').removeProp('checked');
+    }
+    else {
+      payment_options.show();
+      payment_processor.show();
+      payment_information.show();
+    }
+  }
+
+  function skipPaymentMethod() {
+    var flag = false;
+    cj('.price-set-option-content input[data-amount]').each( function(){
+      currentTotal = cj(this).attr('data-amount').replace(/[^\/\d]/g,'');
+      if( cj(this).is(':checked') && currentTotal == 0 ) {
+          flag = true;
+      }
+    });
+    cj('.price-set-option-content input[data-amount]').change( function () {
+      if (cj(this).attr('data-amount').replace(/[^\/\d]/g,'') == 0 ) {
+        flag = true;
+      } else {
+        flag = false;
+      }
+      showHidePayment(flag);
+    });
+    showHidePayment(flag);
+  }
+
+    cj(function(){
     // highlight price sets
     function updatePriceSetHighlight() {
       cj('#priceset .price-set-row span').removeClass('highlight');

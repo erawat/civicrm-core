@@ -140,6 +140,18 @@ class CRM_Utils_Type {
   }
 
   /**
+   * Helper function to call escape on arrays
+   *
+   * @see escape
+   */
+  public static function escapeAll($data, $type, $abort = TRUE) {
+    foreach ($data as $key => $value) {
+      $data[$key] = CRM_Utils_Type::escape($value, $type, $abort);
+    }
+    return $data;
+  }
+
+  /**
    * Verify that a variable is of a given type
    *
    * @param mixed   $data         The variable
@@ -216,6 +228,20 @@ class CRM_Utils_Type {
 
         if (CRM_Utils_Rule::validContact($data)) {
           return $data;
+        }
+        break;
+
+      case 'MysqlColumnName':
+        if (CRM_Utils_Rule::mysqlColumnName($data)) {
+          $parts = explode('.', $data);
+          $data = '`' . implode('`.`', $parts) . '`';
+          return $data;
+        }
+        break;
+
+      case 'MysqlOrderByDirection':
+        if (CRM_Utils_Rule::mysqlOrderByDirection($data)) {
+          return strtolower($data);
         }
         break;
 
@@ -313,6 +339,18 @@ class CRM_Utils_Type {
 
         if (CRM_Utils_Rule::validContact($data)) {
           return $data;
+        }
+        break;
+
+      case 'MysqlColumnName':
+        if (CRM_Utils_Rule::mysqlColumnName($data)) {
+          return $data;
+        }
+        break;
+
+      case 'MysqlOrderByDirection':
+        if (CRM_Utils_Rule::mysqlOrderByDirection($data)) {
+          return strtolower($data);
         }
         break;
 
