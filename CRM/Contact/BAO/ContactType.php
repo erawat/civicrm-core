@@ -72,7 +72,7 @@ class CRM_Contact_BAO_ContactType extends CRM_Contact_DAO_ContactType {
    *@static
    *
    */
-  static function &basicTypeInfo($all = FALSE) {
+  static function basicTypeInfo($all = FALSE) {
     static $_cache = NULL;
 
     if ($_cache === NULL) {
@@ -142,7 +142,7 @@ WHERE  parent_id IS NULL
    *@static
    *
    */
-  static function &subTypeInfo($contactType = NULL, $all = FALSE, $ignoreCache = FALSE, $reset = FALSE) {
+  static function subTypeInfo($contactType = NULL, $all = FALSE, $ignoreCache = FALSE, $reset = FALSE) {
     static $_cache = NULL;
 
     if ($reset === TRUE) {
