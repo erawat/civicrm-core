@@ -122,7 +122,7 @@ class CRM_ACL_API {
       $contactID = 0;
     }
 
-    return implode(' AND ',
+    $where = implode(' AND ',
       array(
         CRM_ACL_BAO_ACL::whereClause($type,
           $tables,
@@ -132,6 +132,14 @@ class CRM_ACL_API {
         $deleteClause,
       )
     );
+
+    // Add permission on self
+    if ($contactID && (CRM_Core_Permission::check('edit my contact') ||
+        $type == self::VIEW && CRM_Core_Permission::check('view my contact'))
+    ) {
+      $where = "(contact_a.id = $contactID OR ($where))";
+    }
+    return $where;
   }
 
   /**
