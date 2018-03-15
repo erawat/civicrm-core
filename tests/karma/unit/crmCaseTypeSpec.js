@@ -222,6 +222,62 @@ describe('crmCaseType', function() {
               }
             ]
           }
+        },
+        defaultAssigneeTypes: {
+          values: [
+              {
+                "id": "1174",
+                "option_group_id": "152",
+                "label": "None",
+                "value": "1",
+                "name": "NONE",
+                "filter": "0",
+                "is_default": "0",
+                "weight": "1",
+                "is_optgroup": "0",
+                "is_reserved": "0",
+                "is_active": "1"
+              },
+              {
+                "id": "1175",
+                "option_group_id": "152",
+                "label": "By relationship to workflow client",
+                "value": "2",
+                "name": "BY_RELATIONSHIP",
+                "filter": "0",
+                "is_default": "0",
+                "weight": "2",
+                "is_optgroup": "0",
+                "is_reserved": "0",
+                "is_active": "1"
+              },
+              {
+                "id": "1176",
+                "option_group_id": "152",
+                "label": "Specific contact",
+                "value": "3",
+                "name": "SPECIFIC_CONTACT",
+                "filter": "0",
+                "is_default": "0",
+                "weight": "3",
+                "is_optgroup": "0",
+                "is_reserved": "0",
+                "is_active": "1"
+              },
+              {
+                "id": "1177",
+                "option_group_id": "152",
+                "label": "User creating the workflow",
+                "value": "4",
+                "name": "USER_CREATING_THE_CASE",
+                "filter": "0",
+                "is_default": "0",
+                "weight": "4",
+                "is_optgroup": "0",
+                "is_reserved": "0",
+                "is_active": "1"
+              }
+          ]
         }
       };
       ctrl = $controller('CaseTypeCtrl', {$scope: scope, apiCalls: apiCalls});
@@ -233,6 +289,14 @@ describe('crmCaseType', function() {
 
     it('should load activity types', function() {
       expect(scope.activityTypes['ADC referral']).toEqualData(apiCalls.actTypes.values[0]);
+    });
+
+    it('should store the default assignee types', function() {
+      expect(scope.defaultAssigneeTypes).toBe(apiCalls.defaultAssigneeTypes.values);
+    });
+
+    it('should store the default assignee types indexed by name', function() {
+      expect(scope.defaultAssigneeTypesIndex).toEqual(_.indexBy(apiCalls.defaultAssigneeTypes.values, 'name'));
     });
 
     it('addActivitySet should add an activitySet to the case type', function() {
