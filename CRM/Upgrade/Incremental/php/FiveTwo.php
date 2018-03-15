@@ -61,6 +61,41 @@ class CRM_Upgrade_Incremental_php_FiveTwo extends CRM_Upgrade_Incremental_Base {
     // }
   }
 
+  /**
+   * Upgrade function for version 5.0.alpha1. This upgrader adds the default assignee
+   * option values that can be selected when creating or editing a new
+   * workflow's activity.
+   *
+   * @param string $rev
+   */
+  public function upgrade_5_2_alpha1($rev) {
+    $this->addTask(ts('Upgrade DB to %1: SQL', array(1 => $rev)), 'runSql', $rev);
+
+    // Add option group for activity default assignees:
+    CRM_Core_BAO_OptionGroup::ensureOptionGroupExists(array(
+      'name' => 'activity_default_assignee',
+      'title' => ts('Activity default assignee'),
+      'is_reserved' => 1,
+    ));
+
+    // Add option values for activity default assignees:
+    $options = array(
+      array('name' => 'NONE', 'label' => ts('None')),
+      array('name' => 'BY_RELATIONSHIP', 'label' => ts('By relationship to case client')),
+      array('name' => 'SPECIFIC_CONTACT', 'label' => ts('Specific contact')),
+      array('name' => 'USER_CREATING_THE_CASE', 'label' => ts('User creating the case')),
+    );
+
+    foreach ($options as $option) {
+      CRM_Core_BAO_OptionValue::ensureOptionValueExists(array(
+        'option_group_id' => 'activity_default_assignee',
+        'name' => $option['name'],
+        'label' => $option['label'],
+        'is_active' => TRUE,
+      ));
+    }
+  }
+
   /*
    * Important! All upgrade functions MUST add a 'runSql' task.
    * Uncomment and use the following template for a new upgrade version
