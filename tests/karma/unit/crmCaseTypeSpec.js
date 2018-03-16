@@ -318,5 +318,25 @@ describe('crmCaseType', function() {
       expect(newSet.label).toBe('Timeline #2');
     });
 
+    describe('when clearing the activity\'s default assignee type values', function() {
+      var activity;
+
+      beforeEach(function() {
+        activity = {
+          default_assignee_relationship: 1,
+          default_assignee_contact: 2
+        };
+
+        scope.clearActivityDefaultAssigneeValues(activity);
+      });
+
+      it('clears the default assignee relationship for the activity', function() {
+        expect(activity.default_assignee_relationship).toBe(null);
+      });
+
+      it('clears the default assignee contact for the activity', function() {
+        expect(activity.default_assignee_contact).toBe(null);
+      });
+    });
   });
 });

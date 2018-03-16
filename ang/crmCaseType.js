@@ -239,6 +239,12 @@
       }
     };
 
+    /// Clears the activity's default assignee values for relationship and contact
+    $scope.clearActivityDefaultAssigneeValues = function(activity) {
+      activity.default_assignee_relationship = null;
+      activity.default_assignee_contact = null;
+    };
+
     /// Add a new role
     $scope.addRole = function(roles, roleName) {
       var names = _.pluck($scope.caseType.definition.caseRoles, 'name');

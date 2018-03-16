@@ -11,6 +11,7 @@ Required vars: activitySet
     <th>{{ts('Reference')}}</th>
     <th>{{ts('Offset')}}</th>
     <th>{{ts('Select')}}</th>
+    <th>{{ts('Default assignee')}}</th>
     <th></th>
   </tr>
   </thead>
@@ -60,6 +61,35 @@ Required vars: activitySet
         ng-options="key as value for (key,value) in {newest: ts('Newest'), oldest: ts('Oldest')}"
         >
       </select>
+    </td>
+    <td>
+      <select
+        ui-jq="select2"
+        ui-options="{dropdownAutoWidth : true}"
+        ng-model="activity.default_assignee_type"
+        ng-options="option.id as option.label for option in defaultAssigneeTypes"
+        ng-change="clearActivityDefaultAssigneeValues(activity)"
+      ></select>
+
+      <p ng-if="activity.default_assignee_type === defaultAssigneeTypesIndex.BY_RELATIONSHIP.id">
+        <select
+          ui-jq="select2"
+          ui-options="{dropdownAutoWidth : true}"
+          ng-model="activity.default_assignee_relationship"
+          ng-options="option as option.text for option in relationshipTypeOptions"
+          required
+        ></select>
+      </p>
+
+      <p ng-if="activity.default_assignee_type === defaultAssigneeTypesIndex.SPECIFIC_CONTACT.id">
+        <input
+          type="text"
+          ng-model="activity.default_assignee_contact"
+          placeholder="- select contact -"
+          crm-entityref="{ entity: 'Contact' }"
+          data-create-links="true"
+          required />
+      </p>
     </td>
     <td>
       <a class="crm-hover-button"
