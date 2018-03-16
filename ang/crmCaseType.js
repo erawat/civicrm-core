@@ -151,7 +151,16 @@
       'sequence': 'Sequence'
     };
 
-    $scope.caseType = apiCalls.caseType ? apiCalls.caseType : _.cloneDeep(newCaseTypeTemplate);
+    if (apiCalls.caseType) {
+      // edit case type
+      $scope.caseType = apiCalls.caseType;
+    } else {
+      // new case type
+      $scope.caseType = _.cloneDeep(newCaseTypeTemplate);
+      $scope.caseType.definition.activitySets[0].activityTypes[0]
+        .default_assignee_type = $scope.defaultAssigneeTypesIndex.NONE.id;
+    }
+
     $scope.caseType.definition = $scope.caseType.definition || [];
     $scope.caseType.definition.activityTypes = $scope.caseType.definition.activityTypes || [];
     $scope.caseType.definition.activitySets = $scope.caseType.definition.activitySets || [];
@@ -196,7 +205,8 @@
         status: 'Scheduled',
         reference_activity: 'Open Case',
         reference_offset: '1',
-        reference_select: 'newest'
+        reference_select: 'newest',
+        default_assignee_type: $scope.defaultAssigneeTypesIndex.NONE.id
       });
     }
 

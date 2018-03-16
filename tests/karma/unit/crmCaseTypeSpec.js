@@ -338,6 +338,54 @@ describe('crmCaseType', function() {
         expect(activity.default_assignee_contact).toBe(null);
       });
     });
+
+    describe('when adding a new activity to a set', function() {
+      var activitySet;
+
+      beforeEach(function() {
+        activitySet = { activityTypes: [] };
+        scope.activityTypes = { comment: { label: 'Add a new comment' } };
+
+        scope.addActivity(activitySet, 'comment');
+      });
+
+      it('adds a new Comment activity to the set', function() {
+        expect(activitySet.activityTypes[0]).toEqual({
+          name: 'comment',
+          label: scope.activityTypes.comment.label,
+          status: 'Scheduled',
+          reference_activity: 'Open Case',
+          reference_offset: '1',
+          reference_select: 'newest',
+          default_assignee_type: scope.defaultAssigneeTypesIndex.NONE.id
+        });
+      });
+    });
+
+    describe('when creating a new workflow', function() {
+      beforeEach(inject(function ($controller) {
+        apiCalls.caseType = null;
+
+        ctrl = $controller('CaseTypeCtrl', {$scope: scope, apiCalls: apiCalls});
+      }));
+
+      it('sets default values for the case type title, name, and active status', function() {
+        expect(scope.caseType).toEqual(jasmine.objectContaining({
+          title: '',
+          name: '',
+          is_active: '1'
+        }));
+      });
+
+      it('adds an Open Case activty to the default activty set', function() {
+        expect(scope.caseType.definition.activitySets[0].activityTypes).toEqual([{
+          name: 'Open Case',
+          label: 'Open Case',
+          status: 'Completed',
+          default_assignee_type: scope.defaultAssigneeTypesIndex.NONE.id
+        }]);
+      });
+    });
   });
 
   describe('crmAddName', function () {
