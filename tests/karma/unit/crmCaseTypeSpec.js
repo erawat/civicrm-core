@@ -361,5 +361,30 @@ describe('crmCaseType', function() {
         });
       });
     });
+
+    describe('when creating a new workflow', function() {
+      beforeEach(inject(function ($controller) {
+        apiCalls.caseType = null;
+
+        ctrl = $controller('CaseTypeCtrl', {$scope: scope, apiCalls: apiCalls});
+      }));
+
+      it('sets default values for the case type title, name, and active status', function() {
+        expect(scope.caseType).toEqual(jasmine.objectContaining({
+          title: '',
+          name: '',
+          is_active: '1'
+        }));
+      });
+
+      it('adds an Open Case activty to the default activty set', function() {
+        expect(scope.caseType.definition.activitySets[0].activityTypes).toEqual([{
+          name: 'Open Case',
+          label: 'Open Case',
+          status: 'Completed',
+          default_assignee_type: scope.defaultAssigneeTypesIndex.NONE.id
+        }]);
+      });
+    });
   });
 });
