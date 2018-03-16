@@ -199,7 +199,8 @@
         status: 'Scheduled',
         reference_activity: 'Open Case',
         reference_offset: '1',
-        reference_select: 'newest'
+        reference_select: 'newest',
+        default_assignee_type: $scope.defaultAssigneeTypesIndex.NONE.id
       });
     }
 

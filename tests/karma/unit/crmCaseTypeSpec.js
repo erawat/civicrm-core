@@ -338,5 +338,28 @@ describe('crmCaseType', function() {
         expect(activity.default_assignee_contact).toBe(null);
       });
     });
+
+    describe('when adding a new activity to a set', function() {
+      var activitySet;
+
+      beforeEach(function() {
+        activitySet = { activityTypes: [] };
+        scope.activityTypes = { comment: { label: 'Add a new comment' } };
+
+        scope.addActivity(activitySet, 'comment');
+      });
+
+      it('adds a new Comment activity to the set', function() {
+        expect(activitySet.activityTypes[0]).toEqual({
+          name: 'comment',
+          label: scope.activityTypes.comment.label,
+          status: 'Scheduled',
+          reference_activity: 'Open Case',
+          reference_offset: '1',
+          reference_select: 'newest',
+          default_assignee_type: scope.defaultAssigneeTypesIndex.NONE.id
+        });
+      });
+    });
   });
 });
