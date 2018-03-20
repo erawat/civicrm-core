@@ -87,30 +87,21 @@ class CRM_Upgrade_Incremental_php_FiveZero extends CRM_Upgrade_Incremental_Base 
     ));
 
     // Add option values for activity default assignees:
-    CRM_Core_BAO_OptionValue::ensureOptionValueExists(array(
-      'option_group_id' => 'activity_default_assignee',
-      'name' => 'NONE',
-      'label' => ts('None'),
-      'is_active' => TRUE
-    ));
-    CRM_Core_BAO_OptionValue::ensureOptionValueExists(array(
-      'option_group_id' => 'activity_default_assignee',
-      'name' => 'BY_RELATIONSHIP',
-      'label' => ts('By relationship to case client'),
-      'is_active' => TRUE
-    ));
-    CRM_Core_BAO_OptionValue::ensureOptionValueExists(array(
-      'option_group_id' => 'activity_default_assignee',
-      'name' => 'SPECIFIC_CONTACT',
-      'label' => ts('Specific contact'),
-      'is_active' => TRUE
-    ));
-    CRM_Core_BAO_OptionValue::ensureOptionValueExists(array(
-      'option_group_id' => 'activity_default_assignee',
-      'name' => 'USER_CREATING_THE_CASE',
-      'label' => ts('User creating the case'),
-      'is_active' => TRUE
-    ));
+    $options = array(
+      array('name' => 'NONE', 'label' => ts('None')),
+      array('name' => 'BY_RELATIONSHIP', 'label' => ts('By relationship to case client')),
+      array('name' => 'SPECIFIC_CONTACT', 'label' => ts('Specific contact')),
+      array('name' => 'USER_CREATING_THE_CASE', 'label' => ts('User creating the case'))
+    );
+
+    foreach ($options as $option) {
+      CRM_Core_BAO_OptionValue::ensureOptionValueExists(array(
+        'option_group_id' => 'activity_default_assignee',
+        'name' => $option['name'],
+        'label' => $option['label'],
+        'is_active' => TRUE
+      ));
+    }
   }
 
   /*
