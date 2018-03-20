@@ -180,18 +180,20 @@
       $scope.caseType.definition = $scope.caseType.definition || [];
       $scope.caseType.definition.activityTypes = $scope.caseType.definition.activityTypes || [];
       $scope.caseType.definition.activitySets = $scope.caseType.definition.activitySets || [];
+      $scope.caseType.definition.caseRoles = $scope.caseType.definition.caseRoles || [];
+      $scope.caseType.definition.statuses = $scope.caseType.definition.statuses || [];
+
       _.each($scope.caseType.definition.activitySets, function (set) {
         _.each(set.activityTypes, function (type, name) {
           type.label = $scope.activityTypes[type.name].label;
         });
       });
-      $scope.caseType.definition.caseRoles = $scope.caseType.definition.caseRoles || [];
-      $scope.caseType.definition.statuses = $scope.caseType.definition.statuses || [];
     }
 
     /// initializes the selected statuses
     function initSelectedStatuses() {
       $scope.selectedStatuses = {};
+
       _.each(apiCalls.caseStatuses.values, function (status) {
         $scope.selectedStatuses[status.name] = !$scope.caseType.definition.statuses.length || $scope.caseType.definition.statuses.indexOf(status.name) > -1;
       });
