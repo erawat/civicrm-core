@@ -72,7 +72,9 @@ class CRM_Upgrade_Incremental_php_FiveZero extends CRM_Upgrade_Incremental_Base 
   }
 
   /**
-   * Upgrade function.
+   * Upgrade function for version 5.0.1. This version adds the default assignee
+   * option values that can be selected when creating or editing a new
+   * workflow's activity.
    *
    * @param string $rev
    */
