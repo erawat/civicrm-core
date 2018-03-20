@@ -28,7 +28,7 @@ Required vars: activitySet
     <td>
       <select
         ui-jq="select2"
-        ui-options="{dropdownAutoWidth : true}"
+        ui-options="{ dropdownAutoWidth: true }"
         ng-model="activity.status"
         ng-options="actStatus.name as actStatus.label for actStatus in activityStatuses|orderBy:'label'"
         >
@@ -38,7 +38,7 @@ Required vars: activitySet
     <td>
       <select
         ui-jq="select2"
-        ui-options="{dropdownAutoWidth : true}"
+        ui-options="{ dropdownAutoWidth: true }"
         ng-model="activity.reference_activity"
         ng-options="activityType.name as activityType.label for activityType in activitySet.activityTypes"
         >
@@ -56,7 +56,7 @@ Required vars: activitySet
     <td>
       <select
         ui-jq="select2"
-        ui-options="{dropdownAutoWidth : true}"
+        ui-options="{ dropdownAutoWidth: true }"
         ng-model="activity.reference_select"
         ng-options="key as value for (key,value) in {newest: ts('Newest'), oldest: ts('Oldest')}"
         >
@@ -65,7 +65,7 @@ Required vars: activitySet
     <td>
       <select
         ui-jq="select2"
-        ui-options="{dropdownAutoWidth : true}"
+        ui-options="{ dropdownAutoWidth: true }"
         ng-model="activity.default_assignee_type"
         ng-options="option.id as option.label for option in defaultAssigneeTypes"
         ng-change="clearActivityDefaultAssigneeValues(activity)"
@@ -74,7 +74,7 @@ Required vars: activitySet
       <p ng-if="activity.default_assignee_type === defaultAssigneeTypesIndex.BY_RELATIONSHIP.id">
         <select
           ui-jq="select2"
-          ui-options="{dropdownAutoWidth : true}"
+          ui-options="{ dropdownAutoWidth: true }"
           ng-model="activity.default_assignee_relationship"
           ng-options="option as option.text for option in relationshipTypeOptions"
           required
@@ -85,7 +85,7 @@ Required vars: activitySet
         <input
           type="text"
           ng-model="activity.default_assignee_contact"
-          placeholder="- select contact -"
+          placeholder="- Select contact -"
           crm-entityref="{ entity: 'Contact' }"
           data-create-links="true"
           required />
