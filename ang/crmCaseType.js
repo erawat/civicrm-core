@@ -170,8 +170,8 @@
       } else {
         // new case type
         $scope.caseType = _.cloneDeep(newCaseTypeTemplate);
-        $scope.caseType.definition.activitySets[0].activityTypes[0]
-        .default_assignee_type = $scope.defaultAssigneeTypesIndex.NONE.id;
+        $scope.caseType.definition.activitySets[0].activityTypes[0].default_assignee_type =
+          $scope.defaultAssigneeTypesIndex.NONE.id;
       }
     }
 
