@@ -130,52 +130,71 @@
   });
 
   crmCaseType.controller('CaseTypeCtrl', function($scope, crmApi, apiCalls) {
-    // CRM_Case_XMLProcessor::REL_TYPE_CNAME
-    var REL_TYPE_CNAME = CRM.crmCaseType.REL_TYPE_CNAME,
+    var REL_TYPE_CNAME, ts;
 
-    ts = $scope.ts = CRM.ts(null);
+    (function init () {
+      // CRM_Case_XMLProcessor::REL_TYPE_CNAME
+      REL_TYPE_CNAME = CRM.crmCaseType.REL_TYPE_CNAME,
 
-    $scope.activityStatuses = apiCalls.actStatuses.values;
-    $scope.caseStatuses = _.indexBy(apiCalls.caseStatuses.values, 'name');
-    $scope.activityTypes = _.indexBy(apiCalls.actTypes.values, 'name');
-    $scope.activityTypeOptions = _.map(apiCalls.actTypes.values, formatActivityTypeOption);
-    $scope.defaultAssigneeTypes = apiCalls.defaultAssigneeTypes.values;
-    $scope.defaultAssigneeTypesIndex = _.indexBy(apiCalls.defaultAssigneeTypes.values, 'name');
-    $scope.relationshipTypeOptions = _.map(apiCalls.relTypes.values, function(type) {
-      return {id: type[REL_TYPE_CNAME], text: type.label_b_a};
-    });
-    $scope.locks = {caseTypeName: true, activitySetName: true};
+      ts = $scope.ts = CRM.ts(null);
+      $scope.locks = { caseTypeName: true, activitySetName: true };
+      $scope.workflows = { timeline: 'Timeline', sequence: 'Sequence' };
 
-    $scope.workflows = {
-      'timeline': 'Timeline',
-      'sequence': 'Sequence'
-    };
+      storeApiCallsResults();
+      initCaseType();
+      initCaseTypeDefinition();
+      initSelectedStatuses();
+    })();
 
-    if (apiCalls.caseType) {
-      // edit case type
-      $scope.caseType = apiCalls.caseType;
-    } else {
-      // new case type
-      $scope.caseType = _.cloneDeep(newCaseTypeTemplate);
-      $scope.caseType.definition.activitySets[0].activityTypes[0]
-        .default_assignee_type = $scope.defaultAssigneeTypesIndex.NONE.id;
+    /// Stores the api calls results in the $scope object
+    function storeApiCallsResults() {
+      $scope.activityStatuses = apiCalls.actStatuses.values;
+      $scope.caseStatuses = _.indexBy(apiCalls.caseStatuses.values, 'name');
+      $scope.activityTypes = _.indexBy(apiCalls.actTypes.values, 'name');
+      $scope.activityTypeOptions = _.map(apiCalls.actTypes.values, formatActivityTypeOption);
+      $scope.defaultAssigneeTypes = apiCalls.defaultAssigneeTypes.values;
+      $scope.defaultAssigneeTypesIndex = _.indexBy($scope.defaultAssigneeTypes, 'name');
+      $scope.relationshipTypeOptions = _.map(apiCalls.relTypes.values, function(type) {
+        return {id: type[REL_TYPE_CNAME], text: type.label_b_a};
+      });
     }
 
-    $scope.caseType.definition = $scope.caseType.definition || [];
-    $scope.caseType.definition.activityTypes = $scope.caseType.definition.activityTypes || [];
-    $scope.caseType.definition.activitySets = $scope.caseType.definition.activitySets || [];
-    _.each($scope.caseType.definition.activitySets, function (set) {
-      _.each(set.activityTypes, function (type, name) {
-        type.label = $scope.activityTypes[type.name].label;
-      });
-    });
-    $scope.caseType.definition.caseRoles = $scope.caseType.definition.caseRoles || [];
-    $scope.caseType.definition.statuses = $scope.caseType.definition.statuses || [];
+    /// initializes the case type object
+    function initCaseType() {
+      if (apiCalls.caseType) {
+        // edit case type
+        $scope.caseType = apiCalls.caseType;
+      } else {
+        // new case type
+        $scope.caseType = _.cloneDeep(newCaseTypeTemplate);
+        $scope.caseType.definition.activitySets[0].activityTypes[0].default_assignee_type =
+          $scope.defaultAssigneeTypesIndex.NONE.id;
+      }
+    }
 
-    $scope.selectedStatuses = {};
-    _.each(apiCalls.caseStatuses.values, function (status) {
-      $scope.selectedStatuses[status.name] = !$scope.caseType.definition.statuses.length || $scope.caseType.definition.statuses.indexOf(status.name) > -1;
-    });
+    /// initializes the case type definition object
+    function initCaseTypeDefinition() {
+      $scope.caseType.definition = $scope.caseType.definition || [];
+      $scope.caseType.definition.activityTypes = $scope.caseType.definition.activityTypes || [];
+      $scope.caseType.definition.activitySets = $scope.caseType.definition.activitySets || [];
+      $scope.caseType.definition.caseRoles = $scope.caseType.definition.caseRoles || [];
+      $scope.caseType.definition.statuses = $scope.caseType.definition.statuses || [];
+
+      _.each($scope.caseType.definition.activitySets, function (set) {
+        _.each(set.activityTypes, function (type, name) {
+          type.label = $scope.activityTypes[type.name].label;
+        });
+      });
+    }
+
+    /// initializes the selected statuses
+    function initSelectedStatuses() {
+      $scope.selectedStatuses = {};
+
+      _.each(apiCalls.caseStatuses.values, function (status) {
+        $scope.selectedStatuses[status.name] = !$scope.caseType.definition.statuses.length || $scope.caseType.definition.statuses.indexOf(status.name) > -1;
+      });
+    }
 
     $scope.addActivitySet = function(workflow) {
       var activitySet = {};
