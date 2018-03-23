@@ -587,6 +587,9 @@ AND        a.is_deleted = 0
       case $defaultAssigneeOptionsIds['SPECIFIC_CONTACT']:
         return $this->getDefaultAssigneeBySpecificContact($activityTypeXML);
         break;
+      case $defaultAssigneeOptionsIds['USER_CREATING_THE_CASE']:
+        return $activityParams['source_contact_id'];
+        break;
       default:
         return null;
     }
