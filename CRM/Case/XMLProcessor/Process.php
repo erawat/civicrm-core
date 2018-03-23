@@ -31,6 +31,8 @@
  * @copyright CiviCRM LLC (c) 2004-2018
  */
 class CRM_Case_XMLProcessor_Process extends CRM_Case_XMLProcessor {
+  protected $defaultAssigneeOptionsIds = array();
+
   /**
    * Run.
    *
@@ -582,41 +584,42 @@ AND        a.is_deleted = 0
       return NULL;
     }
 
-    $defaultAssigneeOptionsIds = $this->getDefaultAssigneeOptionIds();
+    $this->setupDefaultAssigneeOptionIds();
 
     switch($activityTypeXML->default_assignee_type) {
-      case $defaultAssigneeOptionsIds['BY_RELATIONSHIP']:
+      case $this->defaultAssigneeOptionsIds['BY_RELATIONSHIP']:
         return $this->getDefaultAssigneeByRelationship($activityParams, $activityTypeXML);
         break;
-      case $defaultAssigneeOptionsIds['SPECIFIC_CONTACT']:
+      case $this->defaultAssigneeOptionsIds['SPECIFIC_CONTACT']:
         return $this->getDefaultAssigneeBySpecificContact($activityTypeXML);
         break;
-      case $defaultAssigneeOptionsIds['USER_CREATING_THE_CASE']:
+      case $this->defaultAssigneeOptionsIds['USER_CREATING_THE_CASE']:
         return $activityParams['source_contact_id'];
         break;
-      case $defaultAssigneeOptionsIds['NONE']:
+      case $this->defaultAssigneeOptionsIds['NONE']:
       default:
         return null;
     }
   }
 
   /**
-   * Returns a list of default assignee options indexed by their name.
+   * Fetches and caches the activity's default assignee options.
    *
    * @return array
    */
-  protected function getDefaultAssigneeOptionIds() {
+  protected function setupDefaultAssigneeOptionIds() {
+    if (!empty($this->defaultAssigneeOptionsIds)) {
+      return $defaultAssigneeOptionsIds;
+    }
+
     $defaultAssigneeOptions =  civicrm_api3('OptionValue', 'get', array(
       'option_group_id' => 'activity_default_assignee',
       'options' => array('limit' => 0)
     ));
-    $defaultAssigneeOptionsIds = array();
 
     foreach($defaultAssigneeOptions['values'] as $option) {
-      $defaultAssigneeOptionsIds[$option['name']] = $option['id'];
+      $this->defaultAssigneeOptionsIds[$option['name']] = $option['id'];
     }
-
-    return $defaultAssigneeOptionsIds;
   }
 
   /**
