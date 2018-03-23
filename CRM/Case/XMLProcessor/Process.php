@@ -578,6 +578,10 @@ AND        a.is_deleted = 0
    * @return int|null the ID of the default assignee contact or null if none.
    */
   protected function getDefaultAssigneeForActivity($activityParams, $activityTypeXML) {
+    if (!isset($activityTypeXML->default_assignee_type)) {
+      return NULL;
+    }
+
     $defaultAssigneeOptionsIds = $this->getDefaultAssigneeOptionIds();
 
     switch($activityTypeXML->default_assignee_type) {
@@ -590,6 +594,7 @@ AND        a.is_deleted = 0
       case $defaultAssigneeOptionsIds['USER_CREATING_THE_CASE']:
         return $activityParams['source_contact_id'];
         break;
+      case $defaultAssigneeOptionsIds['NONE']:
       default:
         return null;
     }
