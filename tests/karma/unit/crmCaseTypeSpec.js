@@ -295,8 +295,11 @@ describe('crmCaseType', function() {
       expect(scope.defaultAssigneeTypes).toBe(apiCalls.defaultAssigneeTypes.values);
     });
 
-    it('should store the default assignee types indexed by name', function() {
-      expect(scope.defaultAssigneeTypesIndex).toEqual(_.indexBy(apiCalls.defaultAssigneeTypes.values, 'name'));
+    it('should store the default assignee types values indexed by name', function() {
+      var defaultAssigneeTypeValues = _.chain(apiCalls.defaultAssigneeTypes.values)
+        .indexBy('name').mapValues('value').value();
+
+      expect(scope.defaultAssigneeTypeValues).toEqual(defaultAssigneeTypeValues);
     });
 
     it('addActivitySet should add an activitySet to the case type', function() {
@@ -357,7 +360,7 @@ describe('crmCaseType', function() {
           reference_activity: 'Open Case',
           reference_offset: '1',
           reference_select: 'newest',
-          default_assignee_type: scope.defaultAssigneeTypesIndex.NONE.id
+          default_assignee_type: scope.defaultAssigneeTypeValues.NONE
         });
       });
     });
@@ -382,7 +385,7 @@ describe('crmCaseType', function() {
           name: 'Open Case',
           label: 'Open Case',
           status: 'Completed',
-          default_assignee_type: scope.defaultAssigneeTypesIndex.NONE.id
+          default_assignee_type: scope.defaultAssigneeTypeValues.NONE
         }]);
       });
     });

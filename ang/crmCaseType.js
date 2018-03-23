@@ -153,10 +153,12 @@
       $scope.activityTypes = _.indexBy(apiCalls.actTypes.values, 'name');
       $scope.activityTypeOptions = _.map(apiCalls.actTypes.values, formatActivityTypeOption);
       $scope.defaultAssigneeTypes = apiCalls.defaultAssigneeTypes.values;
-      $scope.defaultAssigneeTypesIndex = _.indexBy($scope.defaultAssigneeTypes, 'name');
       $scope.relationshipTypeOptions = _.map(apiCalls.relTypes.values, function(type) {
         return {id: type[REL_TYPE_CNAME], text: type.label_b_a};
       });
+      // stores the default assignee values indexed by their option name:
+      $scope.defaultAssigneeTypeValues = _.chain($scope.defaultAssigneeTypes)
+        .indexBy('name').mapValues('value').value();
     }
 
     /// initializes the case type object
@@ -168,7 +170,7 @@
         // new case type
         $scope.caseType = _.cloneDeep(newCaseTypeTemplate);
         $scope.caseType.definition.activitySets[0].activityTypes[0].default_assignee_type =
-          $scope.defaultAssigneeTypesIndex.NONE.id;
+          $scope.defaultAssigneeTypeValues.NONE;
       }
     }
 
@@ -225,7 +227,7 @@
         reference_activity: 'Open Case',
         reference_offset: '1',
         reference_select: 'newest',
-        default_assignee_type: $scope.defaultAssigneeTypesIndex.NONE.id
+        default_assignee_type: $scope.defaultAssigneeTypeValues.NONE
       });
     }
 
