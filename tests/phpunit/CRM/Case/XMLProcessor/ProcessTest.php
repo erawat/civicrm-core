@@ -131,6 +131,24 @@ class CRM_Case_XMLProcessor_ProcessTest extends CiviCaseTestCase {
   }
 
   /**
+   * Tests the creation of activities when the default assignee is set to NONE.
+   */
+  public function testCreateActivityAssignedNoUser() {
+    $this->activityTypeXml->default_assignee_type = $this->defaultAssigneeOptionsIds['NONE'];
+
+    $this->process->createActivity($this->activityTypeXml, $this->params);
+    $this->assertActivityAssignedToContactExists(NULL);
+  }
+
+  /**
+   * Tests the creation of activities when the default assignee is set to NONE.
+   */
+  public function testCreateActivityWithNoDefaultAssigneeOption() {
+    $this->process->createActivity($this->activityTypeXml, $this->params);
+    $this->assertActivityAssignedToContactExists(NULL);
+  }
+
+  /**
    * Asserts that a an activity was created where the assignee was the one related
    * to the target contact.
    * It also deletes this activity from the test database.
