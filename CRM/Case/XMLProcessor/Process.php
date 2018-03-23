@@ -631,13 +631,17 @@ AND        a.is_deleted = 0
    * @return int|null the ID of the default assignee contact or null if none.
    */
   protected function getDefaultAssigneeByRelationship($activityParams, $activityTypeXML) {
+    if (!isset($activityTypeXML->default_assignee_relationship)) {
+      return NULL;
+    }
+
     $targetContactId = is_array($activityParams['target_contact_id'])
       ? $activityParams['target_contact_id'][0]
       : $activityParams['target_contact_id'];
 
     $relationships = civicrm_api3('Relationship', 'get', array(
       'contact_id_b' => $targetContactId,
-      'relationship_type_id' => $activityTypeXML->default_assignee_relationship,
+      'relationship_type_id.name' => $activityTypeXML->default_assignee_relationship,
       'sequential' => 1
     ));
 
