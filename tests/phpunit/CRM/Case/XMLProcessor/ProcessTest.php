@@ -10,22 +10,20 @@ class CRM_Case_XMLProcessor_ProcessTest extends CiviCaseTestCase {
   public function setUp() {
     parent::setUp();
 
-    $this->defaultAssigneeOptionsIds = array();
+    $this->defaultAssigneeOptionsIds = [];
     $this->assigneeContactId = $this->individualCreate();
     $this->targetContactId = $this->individualCreate();
 
     $this->setUpDefaultAssigneeOptions();
     $this->setUpRelationship();
 
-    $this->activityTypeXml = (object) array(
-      'name' => 'Open Case'
-    );
-    $this->params = array(
+    $this->activityTypeXml = (object) [ 'name' => 'Open Case' ];
+    $this->params = [
       'activity_date_time' => date('Ymd'),
       'caseID' => $this->caseTypeId,
       'clientID' => $this->targetContactId,
       'creatorID' => $this->_loggedInUser,
-    );
+    ];
 
     $this->process = new CRM_Case_XMLProcessor_Process();
   }
@@ -35,20 +33,20 @@ class CRM_Case_XMLProcessor_ProcessTest extends CiviCaseTestCase {
    * It also stores the IDs of the options in an index.
    */
   protected function setUpDefaultAssigneeOptions() {
-    $options = array(
+    $options = [
       'NONE', 'BY_RELATIONSHIP', 'SPECIFIC_CONTACT', 'USER_CREATING_THE_CASE'
-    );
+    ];
 
-    CRM_Core_BAO_OptionGroup::ensureOptionGroupExists(array(
+    CRM_Core_BAO_OptionGroup::ensureOptionGroupExists([
       'name' => 'activity_default_assignee'
-    ));
+    ]);
 
     foreach ($options as $option) {
-      $optionValueId = CRM_Core_BAO_OptionValue::ensureOptionValueExists(array(
+      $optionValueId = CRM_Core_BAO_OptionValue::ensureOptionValueExists([
         'option_group_id' => 'activity_default_assignee',
         'name' => $option,
         'label' => $option
-      ));
+      ]);
 
       $this->defaultAssigneeOptionsIds[$option] = $optionValueId;
     }
@@ -58,19 +56,19 @@ class CRM_Case_XMLProcessor_ProcessTest extends CiviCaseTestCase {
    * Adds a relationship between the activity's target contact and default assignee.
    */
   protected function setUpRelationship() {
-    $this->relationshipTypeId = $this->relationshipTypeCreate(array(
+    $this->relationshipTypeId = $this->relationshipTypeCreate([
       'contact_type_a' => 'Individual',
       'contact_type_b' => 'Individual'
-    ));
-    $this->unassignedRelationshipTypeId = $this->relationshipTypeCreate(array(
+    ]);
+    $this->unassignedRelationshipTypeId = $this->relationshipTypeCreate([
       'name_a_b' => 'Instructor of',
       'name_b_a' => 'Pupil of'
-    ));
-    $this->relationshipId = $this->callAPISuccess('Relationship', 'create', array(
+    ]);
+    $this->relationshipId = $this->callAPISuccess('Relationship', 'create', [
       'contact_id_a' => $this->assigneeContactId,
       'contact_id_b' => $this->targetContactId,
       'relationship_type_id' => $this->relationshipTypeId
-    ));
+    ]);
   }
 
   /**
@@ -149,21 +147,18 @@ class CRM_Case_XMLProcessor_ProcessTest extends CiviCaseTestCase {
   }
 
   /**
-   * Asserts that a an activity was created where the assignee was the one related
+   * Asserts that an activity was created where the assignee was the one related
    * to the target contact.
-   * It also deletes this activity from the test database.
    *
    * @param int|null the ID of the expected assigned contact or NULL if expected to be empty.
    */
   protected function assertActivityAssignedToContactExists($assigneeContactId) {
-    $activity = $this->callAPISuccess('Activity', 'getsingle', array(
+    $activity = $this->callAPISuccess('Activity', 'getsingle', [
       'target_contact_id' => $this->targetContactId,
       'assignee_contact_id' => $assigneeContactId
-    ));
+    ]);
 
     $this->assertNotNull($activity, 'Contact has no activities assigned to them');
-
-    CRM_Activity_BAO_Activity::deleteActivityContact($activity['id'], 1);
   }
 
 }

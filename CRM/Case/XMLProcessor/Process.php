@@ -584,21 +584,21 @@ AND        a.is_deleted = 0
       return NULL;
     }
 
-    $this->setupDefaultAssigneeOptionIds();
+    $defaultAssigneeOptionsIds = $this->getDefaultAssigneeOptionIds();
 
     switch($activityTypeXML->default_assignee_type) {
-      case $this->defaultAssigneeOptionsIds['BY_RELATIONSHIP']:
+      case $defaultAssigneeOptionsIds['BY_RELATIONSHIP']:
         return $this->getDefaultAssigneeByRelationship($activityParams, $activityTypeXML);
         break;
-      case $this->defaultAssigneeOptionsIds['SPECIFIC_CONTACT']:
+      case $defaultAssigneeOptionsIds['SPECIFIC_CONTACT']:
         return $this->getDefaultAssigneeBySpecificContact($activityTypeXML);
         break;
-      case $this->defaultAssigneeOptionsIds['USER_CREATING_THE_CASE']:
+      case $defaultAssigneeOptionsIds['USER_CREATING_THE_CASE']:
         return $activityParams['source_contact_id'];
         break;
-      case $this->defaultAssigneeOptionsIds['NONE']:
+      case $defaultAssigneeOptionsIds['NONE']:
       default:
-        return null;
+        return NULL;
     }
   }
 
@@ -607,19 +607,21 @@ AND        a.is_deleted = 0
    *
    * @return array
    */
-  protected function setupDefaultAssigneeOptionIds() {
+  protected function getDefaultAssigneeOptionIds() {
     if (!empty($this->defaultAssigneeOptionsIds)) {
-      return $defaultAssigneeOptionsIds;
+      return $this->defaultAssigneeOptionsIds;
     }
 
-    $defaultAssigneeOptions =  civicrm_api3('OptionValue', 'get', array(
+    $defaultAssigneeOptions =  civicrm_api3('OptionValue', 'get', [
       'option_group_id' => 'activity_default_assignee',
-      'options' => array('limit' => 0)
-    ));
+      'options' => [ 'limit' => 0 ]
+    ]);
 
     foreach($defaultAssigneeOptions['values'] as $option) {
       $this->defaultAssigneeOptionsIds[$option['name']] = $option['id'];
     }
+
+    return $this->defaultAssigneeOptionsIds;
   }
 
   /**
@@ -636,14 +638,15 @@ AND        a.is_deleted = 0
     }
 
     $targetContactId = is_array($activityParams['target_contact_id'])
-      ? $activityParams['target_contact_id'][0]
+      ? CRM_Utils_Array::first($activityParams['target_contact_id'])
       : $activityParams['target_contact_id'];
 
-    $relationships = civicrm_api3('Relationship', 'get', array(
+    $relationships = civicrm_api3('Relationship', 'get', [
       'contact_id_b' => $targetContactId,
       'relationship_type_id.name' => $activityTypeXML->default_assignee_relationship,
+      'is_active' => 1,
       'sequential' => 1
-    ));
+    ]);
 
     if ($relationships['count']) {
       return $relationships['values'][0]['contact_id_a'];
@@ -660,16 +663,19 @@ AND        a.is_deleted = 0
    * @return int|null
    */
   protected function getDefaultAssigneeBySpecificContact($activityTypeXML) {
-    $contact = new CRM_Contact_BAO_Contact();
-    $contact->id = $activityTypeXML->default_assignee_contact;
-
-    if (!$contact->id) {
-      return NULL;
-    } else if ($contact->find(TRUE)) {
-      return $contact->id;
-    } else {
+    if (!$activityTypeXML->default_assignee_contact) {
       return NULL;
     }
+
+    $contact = civicrm_api3('Contact', 'get', [
+      'id' => $activityTypeXML->default_assignee_contact
+    ]);
+
+    if ($contact['count'] == 1) {
+      return $activityTypeXML->default_assignee_contact;
+    }
+
+    return NULL;
   }
 
   /**
