@@ -31,7 +31,7 @@
  * @copyright CiviCRM LLC (c) 2004-2018
  */
 class CRM_Case_XMLProcessor_Process extends CRM_Case_XMLProcessor {
-  protected $defaultAssigneeOptionsIds = array();
+  protected $defaultAssigneeOptionsValues = [];
 
   /**
    * Run.
@@ -584,19 +584,19 @@ AND        a.is_deleted = 0
       return NULL;
     }
 
-    $defaultAssigneeOptionsIds = $this->getDefaultAssigneeOptionIds();
+    $defaultAssigneeOptionsValues = $this->getDefaultAssigneeOptionValues();
 
     switch($activityTypeXML->default_assignee_type) {
-      case $defaultAssigneeOptionsIds['BY_RELATIONSHIP']:
+      case $defaultAssigneeOptionsValues['BY_RELATIONSHIP']:
         return $this->getDefaultAssigneeByRelationship($activityParams, $activityTypeXML);
         break;
-      case $defaultAssigneeOptionsIds['SPECIFIC_CONTACT']:
+      case $defaultAssigneeOptionsValues['SPECIFIC_CONTACT']:
         return $this->getDefaultAssigneeBySpecificContact($activityTypeXML);
         break;
-      case $defaultAssigneeOptionsIds['USER_CREATING_THE_CASE']:
+      case $defaultAssigneeOptionsValues['USER_CREATING_THE_CASE']:
         return $activityParams['source_contact_id'];
         break;
-      case $defaultAssigneeOptionsIds['NONE']:
+      case $defaultAssigneeOptionsValues['NONE']:
       default:
         return NULL;
     }
@@ -607,9 +607,9 @@ AND        a.is_deleted = 0
    *
    * @return array
    */
-  protected function getDefaultAssigneeOptionIds() {
-    if (!empty($this->defaultAssigneeOptionsIds)) {
-      return $this->defaultAssigneeOptionsIds;
+  protected function getDefaultAssigneeOptionValues() {
+    if (!empty($this->defaultAssigneeOptionsValues)) {
+      return $this->defaultAssigneeOptionsValues;
     }
 
     $defaultAssigneeOptions =  civicrm_api3('OptionValue', 'get', [
@@ -618,10 +618,10 @@ AND        a.is_deleted = 0
     ]);
 
     foreach($defaultAssigneeOptions['values'] as $option) {
-      $this->defaultAssigneeOptionsIds[$option['name']] = $option['id'];
+      $this->defaultAssigneeOptionsValues[$option['name']] = $option['value'];
     }
 
-    return $this->defaultAssigneeOptionsIds;
+    return $this->defaultAssigneeOptionsValues;
   }
 
   /**
