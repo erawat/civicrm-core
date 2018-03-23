@@ -549,7 +549,7 @@ class CRM_Core_BAO_OptionValue extends CRM_Core_DAO_OptionValue {
    * This is sympathetic to sites who might pre-add it.
    *
    * @param array $params the option value attributes.
-   * @return object the option value.
+   * @return array the option value attributes.
    */
   public static function ensureOptionValueExists($params) {
     $result = civicrm_api3('OptionValue', 'get', array(
