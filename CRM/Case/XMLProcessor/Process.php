@@ -627,7 +627,11 @@ AND        a.is_deleted = 0
       'sequential' => 1
     ));
 
-    return $relationships['values'][0]['contact_id_a'];
+    if ($relationships['count']) {
+      return $relationships['values'][0]['contact_id_a'];
+    } else {
+      return NULL;
+    }
   }
 
   /**

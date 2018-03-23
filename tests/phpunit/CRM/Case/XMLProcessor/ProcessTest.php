@@ -62,6 +62,10 @@ class CRM_Case_XMLProcessor_ProcessTest extends CiviCaseTestCase {
       'contact_type_a' => 'Individual',
       'contact_type_b' => 'Individual'
     ));
+    $this->unassignedRelationshipTypeId = $this->relationshipTypeCreate(array(
+      'name_a_b' => 'Instructor of',
+      'name_b_a' => 'Pupil of'
+    ));
     $this->relationshipId = $this->callAPISuccess('Relationship', 'create', array(
       'contact_id_a' => $this->assigneeContactId,
       'contact_id_b' => $this->targetContactId,
@@ -77,17 +81,28 @@ class CRM_Case_XMLProcessor_ProcessTest extends CiviCaseTestCase {
     $this->activityTypeXml->default_assignee_relationship = $this->relationshipTypeId;
 
     $this->process->createActivity($this->activityTypeXml, $this->params);
-    $this->assertActivityAssignedToContactExists();
+    $this->assertActivityAssignedToContactExists($this->assigneeContactId);
+  }
+
+  public function testCreateActivityWithDefaultContactByRelationButTheresNoRelationship() {
+    $this->activityTypeXml->default_assignee_type = $this->defaultAssigneeOptionsIds['BY_RELATIONSHIP'];
+    $this->activityTypeXml->default_assignee_relationship = $this->unassignedRelationshipTypeId;
+
+    $this->process->createActivity($this->activityTypeXml, $this->params);
+    $this->assertActivityAssignedToContactExists(NULL);
   }
 
   /**
    * Asserts that a an activity was created where the assignee was the one related
    * to the target contact.
    * It also deletes this activity from the test database.
+   *
+   * @param int|null the ID of the expected assigned contact or NULL if expected to be empty.
    */
-  protected function assertActivityAssignedToContactExists() {
+  protected function assertActivityAssignedToContactExists($assigneeContactId) {
     $activity = $this->callAPISuccess('Activity', 'getsingle', array(
-      'assignee_contact_id' => $this->assigneeContactId
+      'target_contact_id' => $this->targetContactId,
+      'assignee_contact_id' => $assigneeContactId
     ));
 
     $this->assertNotNull($activity, 'Contact has no activities assigned to them');
