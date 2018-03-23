@@ -24,7 +24,7 @@ class CRM_Case_XMLProcessor_ProcessTest extends CiviCaseTestCase {
       'activity_date_time' => date('Ymd'),
       'caseID' => $this->caseTypeId,
       'clientID' => $this->targetContactId,
-      'creatorID' => $this->assigneeContactId,
+      'creatorID' => $this->_loggedInUser,
     );
 
     $this->process = new CRM_Case_XMLProcessor_Process();
@@ -117,6 +117,17 @@ class CRM_Case_XMLProcessor_ProcessTest extends CiviCaseTestCase {
 
     $this->process->createActivity($this->activityTypeXml, $this->params);
     $this->assertActivityAssignedToContactExists(NULL);
+  }
+
+  /**
+   * Tests the creation of activities with the default assignee being the one
+   * creating the case's activity.
+   */
+  public function testCreateActivityAssignedToUserCreatingTheCase() {
+    $this->activityTypeXml->default_assignee_type = $this->defaultAssigneeOptionsIds['USER_CREATING_THE_CASE'];
+
+    $this->process->createActivity($this->activityTypeXml, $this->params);
+    $this->assertActivityAssignedToContactExists($this->_loggedInUser);
   }
 
   /**
