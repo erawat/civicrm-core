@@ -39,18 +39,18 @@ class CRM_Case_XMLProcessor_ProcessTest extends CiviCaseTestCase {
       'NONE', 'BY_RELATIONSHIP', 'SPECIFIC_CONTACT', 'USER_CREATING_THE_CASE'
     );
 
-    $this->callAPISuccess('OptionGroup', 'create', array(
+    CRM_Core_BAO_OptionGroup::ensureOptionGroupExists(array(
       'name' => 'activity_default_assignee'
     ));
 
     foreach ($options as $option) {
-      $result = $this->callAPISuccess('OptionValue', 'create', array(
+      $optionValueId = CRM_Core_BAO_OptionValue::ensureOptionValueExists(array(
         'option_group_id' => 'activity_default_assignee',
         'name' => $option,
         'label' => $option
       ));
 
-      $this->defaultAssigneeOptionsIds[$option] = $result['id'];
+      $this->defaultAssigneeOptionsIds[$option] = $optionValueId;
     }
   }
 
