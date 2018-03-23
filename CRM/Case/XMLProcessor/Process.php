@@ -474,6 +474,8 @@ AND        a.is_deleted = 0
       );
     }
 
+    $activityParams['assignee_contact_id'] = $this->getDefaultAssigneeForActivity($activityParams, $activityTypeXML);
+
     //parsing date to default preference format
     $params['activity_date_time'] = CRM_Utils_Date::processDate($params['activity_date_time']);
 
@@ -566,6 +568,66 @@ AND        a.is_deleted = 0
     );
     CRM_Case_BAO_Case::processCaseActivity($caseParams);
     return TRUE;
+  }
+
+  /**
+   * Return the default assignee contact for the activity.
+   *
+   * @param array $activityParams
+   * @param object $activityTypeXML
+   * @return int|null the ID of the default assignee contact or null if none.
+   */
+  protected function getDefaultAssigneeForActivity($activityParams, $activityTypeXML) {
+    $defaultAssigneeOptionsIds = $this->getDefaultAssigneeOptionIds();
+
+    switch($activityTypeXML->default_assignee_type) {
+      case $defaultAssigneeOptionsIds['BY_RELATIONSHIP']:
+        return $this->getDefaultAssigneeByRelationship($activityParams, $activityTypeXML);
+        break;
+      default:
+        return null;
+    }
+  }
+
+  /**
+   * Returns a list of default assignee options indexed by their name.
+   *
+   * @return array
+   */
+  protected function getDefaultAssigneeOptionIds() {
+    $defaultAssigneeOptions =  civicrm_api3('OptionValue', 'get', array(
+      'option_group_id' => 'activity_default_assignee',
+      'options' => array('limit' => 0)
+    ));
+    $defaultAssigneeOptionsIds = array();
+
+    foreach($defaultAssigneeOptions['values'] as $option) {
+      $defaultAssigneeOptionsIds[$option['name']] = $option['id'];
+    }
+
+    return $defaultAssigneeOptionsIds;
+  }
+
+  /**
+   * Returns the default assignee for the activity by searching for the target's
+   * contact relationship type defined in the activity's details.
+   *
+   * @param array $activityParams
+   * @param object $activityTypeXML
+   * @return int|null the ID of the default assignee contact or null if none.
+   */
+  protected function getDefaultAssigneeByRelationship($activityParams, $activityTypeXML) {
+    $targetContactId = is_array($activityParams['target_contact_id'])
+      ? $activityParams['target_contact_id'][0]
+      : $activityParams['target_contact_id'];
+
+    $relationships = civicrm_api3('Relationship', 'get', array(
+      'contact_id_b' => $targetContactId,
+      'relationship_type_id' => $activityTypeXML->default_assignee_relationship,
+      'sequential' => 1
+    ));
+
+    return $relationships['values'][0]['contact_id_a'];
   }
 
   /**
