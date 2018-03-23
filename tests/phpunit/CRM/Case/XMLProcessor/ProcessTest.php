@@ -84,9 +84,36 @@ class CRM_Case_XMLProcessor_ProcessTest extends CiviCaseTestCase {
     $this->assertActivityAssignedToContactExists($this->assigneeContactId);
   }
 
+  /**
+   * Tests the creation of activities with default assignee by relationship,
+   * but the target contact doesn't have any relationship of the selected type.
+   */
   public function testCreateActivityWithDefaultContactByRelationButTheresNoRelationship() {
     $this->activityTypeXml->default_assignee_type = $this->defaultAssigneeOptionsIds['BY_RELATIONSHIP'];
     $this->activityTypeXml->default_assignee_relationship = $this->unassignedRelationshipTypeId;
+
+    $this->process->createActivity($this->activityTypeXml, $this->params);
+    $this->assertActivityAssignedToContactExists(NULL);
+  }
+
+  /**
+   * Tests the creation of activities with default assignee set to a specific contact.
+   */
+  public function testCreateActivityAssignedToSpecificContact() {
+    $this->activityTypeXml->default_assignee_type = $this->defaultAssigneeOptionsIds['SPECIFIC_CONTACT'];
+    $this->activityTypeXml->default_assignee_contact = $this->assigneeContactId;
+
+    $this->process->createActivity($this->activityTypeXml, $this->params);
+    $this->assertActivityAssignedToContactExists($this->assigneeContactId);
+  }
+
+  /**
+   * Tests the creation of activities with default assignee set to a specific contact,
+   * but the contact does not exist.
+   */
+  public function testCreateActivityAssignedToNonExistantSpecificContact() {
+    $this->activityTypeXml->default_assignee_type = $this->defaultAssigneeOptionsIds['SPECIFIC_CONTACT'];
+    $this->activityTypeXml->default_assignee_contact = 987456321;
 
     $this->process->createActivity($this->activityTypeXml, $this->params);
     $this->assertActivityAssignedToContactExists(NULL);

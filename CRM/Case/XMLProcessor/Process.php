@@ -584,6 +584,9 @@ AND        a.is_deleted = 0
       case $defaultAssigneeOptionsIds['BY_RELATIONSHIP']:
         return $this->getDefaultAssigneeByRelationship($activityParams, $activityTypeXML);
         break;
+      case $defaultAssigneeOptionsIds['SPECIFIC_CONTACT']:
+        return $this->getDefaultAssigneeBySpecificContact($activityTypeXML);
+        break;
       default:
         return null;
     }
@@ -633,6 +636,26 @@ AND        a.is_deleted = 0
 
     if ($relationships['count']) {
       return $relationships['values'][0]['contact_id_a'];
+    } else {
+      return NULL;
+    }
+  }
+
+  /**
+   * Returns the activity's default assignee for a specific contact if the contact exists,
+   * otherwise returns null.
+   *
+   * @param object $activityTypeXML
+   * @return int|null
+   */
+  protected function getDefaultAssigneeBySpecificContact($activityTypeXML) {
+    $contact = new CRM_Contact_BAO_Contact();
+    $contact->id = $activityTypeXML->default_assignee_contact;
+
+    if (!$contact->id) {
+      return NULL;
+    } else if ($contact->find(TRUE)) {
+      return $contact->id;
     } else {
       return NULL;
     }
