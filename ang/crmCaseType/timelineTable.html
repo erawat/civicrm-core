@@ -67,21 +67,21 @@ Required vars: activitySet
         ui-jq="select2"
         ui-options="{ dropdownAutoWidth: true }"
         ng-model="activity.default_assignee_type"
-        ng-options="option.id as option.label for option in defaultAssigneeTypes"
+        ng-options="option.value as option.label for option in defaultAssigneeTypes"
         ng-change="clearActivityDefaultAssigneeValues(activity)"
       ></select>
 
-      <p ng-if="activity.default_assignee_type === defaultAssigneeTypesIndex.BY_RELATIONSHIP.id">
+      <p ng-if="activity.default_assignee_type === defaultAssigneeTypesIndex.BY_RELATIONSHIP.value">
         <select
           ui-jq="select2"
           ui-options="{ dropdownAutoWidth: true }"
           ng-model="activity.default_assignee_relationship"
-          ng-options="option as option.text for option in relationshipTypeOptions"
+          ng-options="option.id as option.text for option in relationshipTypeOptions"
           required
         ></select>
       </p>
 
-      <p ng-if="activity.default_assignee_type === defaultAssigneeTypesIndex.SPECIFIC_CONTACT.id">
+      <p ng-if="activity.default_assignee_type === defaultAssigneeTypesIndex.SPECIFIC_CONTACT.value">
         <input
           type="text"
           ng-model="activity.default_assignee_contact"
