@@ -88,6 +88,8 @@ class CRM_Upgrade_Incremental_php_FiveZero extends CRM_Upgrade_Incremental_Base 
       'is_reserved' => 1,
     ));
 
+    CRM_Core_PseudoConstant::flush();
+
     // Add option values for activity default assignees:
     $options = array(
       array('name' => 'NONE', 'label' => ts('None')),
@@ -102,6 +104,40 @@ class CRM_Upgrade_Incremental_php_FiveZero extends CRM_Upgrade_Incremental_Base 
         'name' => $option['name'],
         'label' => $option['label'],
         'is_active' => TRUE
+      ));
+    }
+  }
+
+  /**
+   * Upgrade function for version 5.0.2. This version adds the category column
+   * to case types. The category is an option value that can be Workflow or
+   * Vacancy.
+   *
+   * @param string $rev
+   */
+  public function upgrade_5_0_2($rev) {
+    $this->addTask(ts('Upgrade DB to %1: SQL', array(1 => $rev)), 'runSql', $rev);
+
+    CRM_Core_BAO_OptionGroup::ensureOptionGroupExists(array(
+      'name' => 'case_type_category',
+      'title' => ts('Case Type Category'),
+      'is_reserved' => 1,
+    ));
+
+    CRM_Core_PseudoConstant::flush();
+
+    $options = array(
+      array('name' => 'WORKFLOW', 'label' => ts('Workflow')),
+      array('name' => 'VACANCY', 'label' => ts('Vacancy'))
+    );
+
+    foreach ($options as $option) {
+      CRM_Core_BAO_OptionValue::ensureOptionValueExists(array(
+        'option_group_id' => 'case_type_category',
+        'name' => $option['name'],
+        'label' => $option['label'],
+        'is_active' => TRUE,
+        'is_reserved'=> TRUE
       ));
     }
   }
