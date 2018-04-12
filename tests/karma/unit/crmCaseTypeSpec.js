@@ -1,6 +1,14 @@
 'use strict';
 
 describe('crmCaseType', function() {
+  var $controller;
+  var apiCalls;
+  var caseTypeCategories;
+  var ctrl;
+  var compile;
+  var $httpBackend;
+  var scope;
+  var timeout;
 
   beforeEach(function() {
     CRM.resourceUrls = {
@@ -15,22 +23,51 @@ describe('crmCaseType', function() {
     inject(function(crmJsonComparator) {
       crmJsonComparator.register(jasmine);
     });
+
+    caseTypeCategories = {
+      values: [
+        {
+          "id": "1170",
+          "option_group_id": "153",
+          "label": "Workflow",
+          "value": "1",
+          "name": "WORKFLOW",
+          "filter": "0",
+          "is_default": "0",
+          "weight": "1",
+          "is_optgroup": "0",
+          "is_reserved": "1",
+          "is_active": "1"
+        },
+        {
+          "id": "1171",
+          "option_group_id": "153",
+          "label": "Vacancy",
+          "value": "2",
+          "name": "VACANCY",
+          "filter": "0",
+          "is_default": "0",
+          "weight": "2",
+          "is_optgroup": "0",
+          "is_reserved": "1",
+          "is_active": "1"
+        }
+      ]
+    };
   });
 
-  describe('CaseTypeCtrl', function() {
-    var apiCalls;
-    var ctrl;
-    var compile;
-    var $httpBackend;
-    var scope;
-    var timeout;
+  beforeEach(inject(function(_$controller_, _$httpBackend_, $compile, $rootScope, $timeout) {
+    $httpBackend = _$httpBackend_;
+    $controller = _$controller_;
+    scope = $rootScope.$new();
+    compile = $compile;
+    timeout = $timeout;
+  }));
 
-    beforeEach(inject(function(_$httpBackend_, $rootScope, $controller, $compile, $timeout) {
-      $httpBackend = _$httpBackend_;
-      scope = $rootScope.$new();
-      compile = $compile;
-      timeout = $timeout;
+  describe('CaseTypeCtrl', function() {
+    beforeEach(function () {
       apiCalls = {
+        caseTypeCategories: caseTypeCategories,
         actStatuses: {
           values: [
             {
@@ -84,36 +121,6 @@ describe('crmCaseType', function() {
               "name": "Closed",
               "grouping": "Closed",
               "filter": "0",
-              "weight": "2",
-              "is_optgroup": "0",
-              "is_reserved": "1",
-              "is_active": "1"
-            }
-          ]
-        },
-        caseTypeCategories: {
-          values: [
-            {
-              "id": "1170",
-              "option_group_id": "153",
-              "label": "Workflow",
-              "value": "1",
-              "name": "WORKFLOW",
-              "filter": "0",
-              "is_default": "0",
-              "weight": "1",
-              "is_optgroup": "0",
-              "is_reserved": "1",
-              "is_active": "1"
-            },
-            {
-              "id": "1171",
-              "option_group_id": "153",
-              "label": "Vacancy",
-              "value": "2",
-              "name": "VACANCY",
-              "filter": "0",
-              "is_default": "0",
               "weight": "2",
               "is_optgroup": "0",
               "is_reserved": "1",
@@ -311,7 +318,7 @@ describe('crmCaseType', function() {
         }
       };
       ctrl = $controller('CaseTypeCtrl', {$scope: scope, apiCalls: apiCalls});
-    }));
+    });
 
     it('should load activity statuses', function() {
       expect(scope.activityStatuses).toEqualData(apiCalls.actStatuses.values);
@@ -427,6 +434,30 @@ describe('crmCaseType', function() {
           default_assignee_type: scope.defaultAssigneeTypesIndex.NONE.id
         }]);
       });
+    });
+  });
+
+  describe('CaseTypeListCtrl', function() {
+    var caseTypeCategoriesIndex;
+    var caseTypes = {
+      values: [{ id: _.uniqueId() }]
+    };
+
+    beforeEach(function() {
+      caseTypeCategoriesIndex = _.indexBy(caseTypeCategories.values, 'value');
+      ctrl = $controller('CaseTypeListCtrl', {
+        $scope: scope,
+        caseTypes: caseTypes,
+        caseTypeCategories: caseTypeCategories
+      });
+    });
+
+    it('should store a list of case types', function() {
+      expect(scope.caseTypes).toEqual(caseTypes.values);
+    });
+
+    it('should store a list of case type categories indexed by value', function() {
+      expect(scope.caseTypeCategoriesIndex).toEqual(caseTypeCategoriesIndex);
     });
   });
 });
