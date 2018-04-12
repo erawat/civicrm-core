@@ -118,6 +118,25 @@ class CRM_Upgrade_Incremental_php_FiveZero extends CRM_Upgrade_Incremental_Base 
   public function upgrade_5_0_2($rev) {
     $this->addTask(ts('Upgrade DB to %1: SQL', array(1 => $rev)), 'runSql', $rev);
 
+    $this->_addCategoryColumnToCaseType();
+    $this->_createCaseTypeCategories();
+    $this->_setDefaultCategoriesForCaseTypes();
+  }
+
+  /**
+   * Adds a new category column to the case type entity. This column references
+   * option values.
+   */
+  protected function _addCategoryColumnToCaseType() {
+    CRM_Core_DAO::executeQuery('ALTER TABLE civicrm_case_type
+      ADD COLUMN category VARCHAR(512)');
+  }
+
+  /**
+   * Creates the option group and values for the case type categories. The
+   * values can be Vacancy or Workflow types.
+   */
+  protected function _createCaseTypeCategories() {
     CRM_Core_BAO_OptionGroup::ensureOptionGroupExists(array(
       'name' => 'case_type_category',
       'title' => ts('Case Type Category'),
@@ -139,6 +158,26 @@ class CRM_Upgrade_Incremental_php_FiveZero extends CRM_Upgrade_Incremental_Base 
         'is_active' => TRUE,
         'is_reserved'=> TRUE
       ));
+    }
+  }
+
+  /**
+   * Updates current case types so they have a category assigned. All case types
+   * are assigned the Workflow category by default except for the Application case
+   * type, which gets the Vacancy category.
+   */
+  protected function _setDefaultCategoriesForCaseTypes() {
+    $caseTypes = civicrm_api3('CaseType', 'get', [
+      'options' => [ 'limit' => 0 ]
+    ]);
+
+    foreach ($caseTypes['values'] as $caseType) {
+      $category = $caseType['name'] === 'Application' ? 'VACANCY' : 'WORKFLOW';
+
+      civicrm_api3('CaseType', 'create', [
+        'id' => $caseType['id'],
+        'category' => $category
+      ]);
     }
   }
 
