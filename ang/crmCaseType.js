@@ -59,6 +59,11 @@
               sequential: 1,
               options: {limit: 0}
             }];
+            reqs.caseTypeCategories = ['OptionValue', 'get', {
+              option_group_id: 'case_type_category',
+              sequential: 1,
+              options: {limit: 0}
+            }];
             reqs.actTypes = ['OptionValue', 'get', {
               option_group_id: 'activity_type',
               sequential: 1,
@@ -153,6 +158,7 @@
     function storeApiCallsResults() {
       $scope.activityStatuses = apiCalls.actStatuses.values;
       $scope.caseStatuses = _.indexBy(apiCalls.caseStatuses.values, 'name');
+      $scope.caseTypeCategories = apiCalls.caseTypeCategories.values;
       $scope.activityTypes = _.indexBy(apiCalls.actTypes.values, 'name');
       $scope.activityTypeOptions = _.map(apiCalls.actTypes.values, formatActivityTypeOption);
       $scope.defaultAssigneeTypes = apiCalls.defaultAssigneeTypes.values;

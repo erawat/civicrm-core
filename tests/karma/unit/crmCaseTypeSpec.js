@@ -91,6 +91,36 @@ describe('crmCaseType', function() {
             }
           ]
         },
+        caseTypeCategories: {
+          values: [
+            {
+              "id": "1170",
+              "option_group_id": "153",
+              "label": "Workflow",
+              "value": "1",
+              "name": "WORKFLOW",
+              "filter": "0",
+              "is_default": "0",
+              "weight": "1",
+              "is_optgroup": "0",
+              "is_reserved": "1",
+              "is_active": "1"
+            },
+            {
+              "id": "1171",
+              "option_group_id": "153",
+              "label": "Vacancy",
+              "value": "2",
+              "name": "VACANCY",
+              "filter": "0",
+              "is_default": "0",
+              "weight": "2",
+              "is_optgroup": "0",
+              "is_reserved": "1",
+              "is_active": "1"
+            }
+          ]
+        },
         actTypes: {
           values: [
             {
@@ -289,6 +319,10 @@ describe('crmCaseType', function() {
 
     it('should load activity types', function() {
       expect(scope.activityTypes['ADC referral']).toEqualData(apiCalls.actTypes.values[0]);
+    });
+
+    it('should load case type categories', function() {
+      expect(scope.caseTypeCategories).toEqual(apiCalls.caseTypeCategories.values);
     });
 
     it('should store the default assignee types', function() {
