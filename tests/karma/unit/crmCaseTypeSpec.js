@@ -396,9 +396,13 @@ describe('crmCaseType', function() {
       });
     });
 
-    describe('when creating a new workflow', function() {
+    describe('when creating a new case type', function() {
+      var defaultCategory;
+
       beforeEach(inject(function ($controller) {
         apiCalls.caseType = null;
+
+        defaultCategory = _.find(apiCalls.caseTypeCategories.values, { name: 'WORKFLOW' }) || {};
 
         ctrl = $controller('CaseTypeCtrl', {$scope: scope, apiCalls: apiCalls});
       }));
@@ -409,6 +413,10 @@ describe('crmCaseType', function() {
           name: '',
           is_active: '1'
         }));
+      });
+
+      it('sets workflow as the default category', function() {
+        expect(scope.caseType.category).toEqual(defaultCategory.value);
       });
 
       it('adds an Open Case activty to the default activty set', function() {

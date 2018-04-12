@@ -175,7 +175,10 @@
         $scope.caseType = apiCalls.caseType;
       } else {
         // new case type
+        var defaultCategory = _.find($scope.caseTypeCategories, { name: 'WORKFLOW' }) || {};
+
         $scope.caseType = _.cloneDeep(newCaseTypeTemplate);
+        $scope.caseType.category = defaultCategory.value;
         $scope.caseType.definition.activitySets[0].activityTypes[0].default_assignee_type =
           $scope.defaultAssigneeTypesIndex.NONE.id;
       }
