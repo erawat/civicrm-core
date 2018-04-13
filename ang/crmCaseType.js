@@ -40,6 +40,9 @@
         resolve: {
           caseTypes: function($route, crmApi) {
             return crmApi('CaseType', 'get', {options: {limit: 0}});
+          },
+          caseTypeCategories: function (crmApi) {
+            return crmApi('OptionValue', 'get', {options: {limit: 0}})
           }
         }
       });
@@ -56,6 +59,11 @@
             }];
             reqs.caseStatuses = ['OptionValue', 'get', {
               option_group_id: 'case_status',
+              sequential: 1,
+              options: {limit: 0}
+            }];
+            reqs.caseTypeCategories = ['OptionValue', 'get', {
+              option_group_id: 'case_type_category',
               sequential: 1,
               options: {limit: 0}
             }];
@@ -153,6 +161,7 @@
     function storeApiCallsResults() {
       $scope.activityStatuses = apiCalls.actStatuses.values;
       $scope.caseStatuses = _.indexBy(apiCalls.caseStatuses.values, 'name');
+      $scope.caseTypeCategories = apiCalls.caseTypeCategories.values;
       $scope.activityTypes = _.indexBy(apiCalls.actTypes.values, 'name');
       $scope.activityTypeOptions = _.map(apiCalls.actTypes.values, formatActivityTypeOption);
       $scope.defaultAssigneeTypes = apiCalls.defaultAssigneeTypes.values;
@@ -169,7 +178,10 @@
         $scope.caseType = apiCalls.caseType;
       } else {
         // new case type
+        var defaultCategory = _.find($scope.caseTypeCategories, { name: 'WORKFLOW' }) || {};
+
         $scope.caseType = _.cloneDeep(newCaseTypeTemplate);
+        $scope.caseType.category = defaultCategory.value;
         $scope.caseType.definition.activitySets[0].activityTypes[0].default_assignee_type =
           $scope.defaultAssigneeTypesIndex.NONE.id;
       }
@@ -404,10 +416,11 @@
     }
   });
 
-  crmCaseType.controller('CaseTypeListCtrl', function($scope, crmApi, caseTypes) {
+  crmCaseType.controller('CaseTypeListCtrl', function($scope, crmApi, caseTypes, caseTypeCategories) {
     var ts = $scope.ts = CRM.ts(null);
 
     $scope.caseTypes = caseTypes.values;
+    $scope.caseTypeCategoriesIndex = _.indexBy(caseTypeCategories.values, 'value');
     $scope.toggleCaseType = function (caseType) {
       caseType.is_active = (caseType.is_active == '1') ? '0' : '1';
       crmApi('CaseType', 'create', caseType, true)

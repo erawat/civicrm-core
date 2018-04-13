@@ -1,6 +1,13 @@
 'use strict';
 
 describe('crmCaseType', function() {
+  var $controller;
+  var apiCalls;
+  var ctrl;
+  var compile;
+  var $httpBackend;
+  var scope;
+  var timeout;
 
   beforeEach(function() {
     CRM.resourceUrls = {
@@ -17,20 +24,18 @@ describe('crmCaseType', function() {
     });
   });
 
-  describe('CaseTypeCtrl', function() {
-    var apiCalls;
-    var ctrl;
-    var compile;
-    var $httpBackend;
-    var scope;
-    var timeout;
+  beforeEach(inject(function(_$controller_, _$httpBackend_, $compile, $rootScope, $timeout) {
+    $httpBackend = _$httpBackend_;
+    $controller = _$controller_;
+    scope = $rootScope.$new();
+    compile = $compile;
+    timeout = $timeout;
+  }));
 
-    beforeEach(inject(function(_$httpBackend_, $rootScope, $controller, $compile, $timeout) {
-      $httpBackend = _$httpBackend_;
-      scope = $rootScope.$new();
-      compile = $compile;
-      timeout = $timeout;
+  describe('CaseTypeCtrl', function() {
+    beforeEach(function () {
       apiCalls = {
+        caseTypeCategories: getCaseTypeCategoriesSampleData(),
         actStatuses: {
           values: [
             {
@@ -281,7 +286,7 @@ describe('crmCaseType', function() {
         }
       };
       ctrl = $controller('CaseTypeCtrl', {$scope: scope, apiCalls: apiCalls});
-    }));
+    });
 
     it('should load activity statuses', function() {
       expect(scope.activityStatuses).toEqualData(apiCalls.actStatuses.values);
@@ -289,6 +294,10 @@ describe('crmCaseType', function() {
 
     it('should load activity types', function() {
       expect(scope.activityTypes['ADC referral']).toEqualData(apiCalls.actTypes.values[0]);
+    });
+
+    it('should load case type categories', function() {
+      expect(scope.caseTypeCategories).toEqual(apiCalls.caseTypeCategories.values);
     });
 
     it('should store the default assignee types', function() {
@@ -362,9 +371,13 @@ describe('crmCaseType', function() {
       });
     });
 
-    describe('when creating a new workflow', function() {
+    describe('when creating a new case type', function() {
+      var defaultCategory;
+
       beforeEach(inject(function ($controller) {
         apiCalls.caseType = null;
+
+        defaultCategory = _.find(apiCalls.caseTypeCategories.values, { name: 'WORKFLOW' }) || {};
 
         ctrl = $controller('CaseTypeCtrl', {$scope: scope, apiCalls: apiCalls});
       }));
@@ -377,6 +390,10 @@ describe('crmCaseType', function() {
         }));
       });
 
+      it('sets workflow as the default category', function() {
+        expect(scope.caseType.category).toEqual(defaultCategory.value);
+      });
+
       it('adds an Open Case activty to the default activty set', function() {
         expect(scope.caseType.definition.activitySets[0].activityTypes).toEqual([{
           name: 'Open Case',
@@ -387,4 +404,65 @@ describe('crmCaseType', function() {
       });
     });
   });
+
+  describe('CaseTypeListCtrl', function() {
+    var caseTypeCategoriesIndex;
+    var caseTypes = {
+      values: [{ id: _.uniqueId() }]
+    };
+
+    beforeEach(function() {
+      var caseTypeCategories = getCaseTypeCategoriesSampleData();
+      caseTypeCategoriesIndex = _.indexBy(caseTypeCategories.values, 'value');
+      ctrl = $controller('CaseTypeListCtrl', {
+        $scope: scope,
+        caseTypes: caseTypes,
+        caseTypeCategories: caseTypeCategories
+      });
+    });
+
+    it('should store a list of case types', function() {
+      expect(scope.caseTypes).toEqual(caseTypes.values);
+    });
+
+    it('should store a list of case type categories indexed by value', function() {
+      expect(scope.caseTypeCategoriesIndex).toEqual(caseTypeCategoriesIndex);
+    });
+  });
+
+  /**
+   * Returns a sample api response for case type categories option values.
+   */
+  function getCaseTypeCategoriesSampleData() {
+    return {
+      values: [
+        {
+          "id": "1170",
+          "option_group_id": "153",
+          "label": "Workflow",
+          "value": "1",
+          "name": "WORKFLOW",
+          "filter": "0",
+          "is_default": "0",
+          "weight": "1",
+          "is_optgroup": "0",
+          "is_reserved": "1",
+          "is_active": "1"
+        },
+        {
+          "id": "1171",
+          "option_group_id": "153",
+          "label": "Vacancy",
+          "value": "2",
+          "name": "VACANCY",
+          "filter": "0",
+          "is_default": "0",
+          "weight": "2",
+          "is_optgroup": "0",
+          "is_reserved": "1",
+          "is_active": "1"
+        }
+      ]
+    };
+  }
 });

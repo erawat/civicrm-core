@@ -68,7 +68,7 @@ class CRM_Upgrade_Incremental_php_FiveZero extends CRM_Upgrade_Incremental_Base 
    * @param string $rev
    */
   public function upgrade_5_0_0($rev) {
-    $this->addTask(ts('Upgrade DB to %1: SQL', array(1 => $rev)), 'runSql', $rev);
+    $this->addTask(ts('Upgrade DB to %1: SQL', [ 1 => $rev ]), 'runSql', $rev);
   }
 
   /**
@@ -79,30 +79,107 @@ class CRM_Upgrade_Incremental_php_FiveZero extends CRM_Upgrade_Incremental_Base 
    * @param string $rev
    */
   public function upgrade_5_0_1($rev) {
-    $this->addTask(ts('Upgrade DB to %1: SQL', array(1 => $rev)), 'runSql', $rev);
+    $this->addTask(ts('Upgrade DB to %1: SQL', [ 1 => $rev ]), 'runSql', $rev);
 
     // Add option group for activity default assignees:
-    CRM_Core_BAO_OptionGroup::ensureOptionGroupExists(array(
+    CRM_Core_BAO_OptionGroup::ensureOptionGroupExists([
       'name' => 'activity_default_assignee',
       'title' => ts('Activity default assignee'),
       'is_reserved' => 1,
-    ));
+    ]);
+
+    // flush the pseudo constant cache so it includes the newly created option group:
+    CRM_Core_PseudoConstant::flush();
 
     // Add option values for activity default assignees:
-    $options = array(
-      array('name' => 'NONE', 'label' => ts('None')),
-      array('name' => 'BY_RELATIONSHIP', 'label' => ts('By relationship to case client')),
-      array('name' => 'SPECIFIC_CONTACT', 'label' => ts('Specific contact')),
-      array('name' => 'USER_CREATING_THE_CASE', 'label' => ts('User creating the case'))
-    );
+    $options = [
+      ['name' => 'NONE', 'label' => ts('None')],
+      ['name' => 'BY_RELATIONSHIP', 'label' => ts('By relationship to case client')],
+      ['name' => 'SPECIFIC_CONTACT', 'label' => ts('Specific contact')],
+      ['name' => 'USER_CREATING_THE_CASE', 'label' => ts('User creating the case')]
+    ];
 
     foreach ($options as $option) {
-      CRM_Core_BAO_OptionValue::ensureOptionValueExists(array(
+      CRM_Core_BAO_OptionValue::ensureOptionValueExists([
         'option_group_id' => 'activity_default_assignee',
         'name' => $option['name'],
         'label' => $option['label'],
         'is_active' => TRUE
-      ));
+      ]);
+    }
+  }
+
+  /**
+   * Upgrade function for version 5.0.2. This version adds the category column
+   * to case types. The category is an option value that can be Workflow or
+   * Vacancy.
+   *
+   * @param string $rev
+   */
+  public function upgrade_5_0_2($rev) {
+    $this->addTask(ts('Upgrade DB to %1: SQL', [ 1 => $rev ]), 'runSql', $rev);
+
+    $this->addCategoryColumnToCaseType();
+    $this->createCaseTypeCategories();
+    $this->setDefaultCategoriesForCaseTypes();
+  }
+
+  /**
+   * Adds a new category column to the case type entity. This column references
+   * option values.
+   */
+  private function addCategoryColumnToCaseType() {
+    CRM_Core_DAO::executeQuery('ALTER TABLE civicrm_case_type
+      ADD COLUMN category INT(10)');
+  }
+
+  /**
+   * Creates the option group and values for the case type categories. The
+   * values can be Vacancy or Workflow types.
+   */
+  private function createCaseTypeCategories() {
+    CRM_Core_BAO_OptionGroup::ensureOptionGroupExists([
+      'name' => 'case_type_category',
+      'title' => ts('Case Type Category'),
+      'is_reserved' => 1,
+    ]);
+
+    // flush the pseudo constant cache so it includes the newly created option group:
+    CRM_Core_PseudoConstant::flush();
+
+    $options = [
+      ['name' => 'WORKFLOW', 'label' => ts('Workflow')],
+      ['name' => 'VACANCY', 'label' => ts('Vacancy')]
+    ];
+
+    foreach ($options as $option) {
+      CRM_Core_BAO_OptionValue::ensureOptionValueExists([
+        'option_group_id' => 'case_type_category',
+        'name' => $option['name'],
+        'label' => $option['label'],
+        'is_active' => TRUE,
+        'is_reserved' => TRUE
+      ]);
+    }
+  }
+
+  /**
+   * Updates current case types so they have a category assigned. All case types
+   * are assigned the Workflow category by default except for the Application case
+   * type, which gets the Vacancy category.
+   */
+  private function setDefaultCategoriesForCaseTypes() {
+    $caseTypes = civicrm_api3('CaseType', 'get', [
+      'options' => [ 'limit' => 0 ]
+    ]);
+
+    foreach ($caseTypes['values'] as $caseType) {
+      $category = $caseType['name'] === 'Application' ? 'VACANCY' : 'WORKFLOW';
+
+      civicrm_api3('CaseType', 'create', [
+        'id' => $caseType['id'],
+        'category' => $category
+      ]);
     }
   }
 
@@ -118,7 +195,7 @@ class CRM_Upgrade_Incremental_php_FiveZero extends CRM_Upgrade_Incremental_Base 
   //   * @param string $rev
   //   */
   //  public function upgrade_4_7_x($rev) {
-  //    $this->addTask(ts('Upgrade DB to %1: SQL', array(1 => $rev)), 'runSql', $rev);
+  //    $this->addTask(ts('Upgrade DB to %1: SQL', [ 1 => $rev ]), 'runSql', $rev);
   //    $this->addTask(ts('Do the foo change'), 'taskFoo', ...);
   //    // Additional tasks here...
   //    // Note: do not use ts() in the addTask description because it adds unnecessary strings to transifex.
