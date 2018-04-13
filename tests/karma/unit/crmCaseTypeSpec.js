@@ -3,7 +3,6 @@
 describe('crmCaseType', function() {
   var $controller;
   var apiCalls;
-  var caseTypeCategories;
   var ctrl;
   var compile;
   var $httpBackend;
@@ -23,37 +22,6 @@ describe('crmCaseType', function() {
     inject(function(crmJsonComparator) {
       crmJsonComparator.register(jasmine);
     });
-
-    caseTypeCategories = {
-      values: [
-        {
-          "id": "1170",
-          "option_group_id": "153",
-          "label": "Workflow",
-          "value": "1",
-          "name": "WORKFLOW",
-          "filter": "0",
-          "is_default": "0",
-          "weight": "1",
-          "is_optgroup": "0",
-          "is_reserved": "1",
-          "is_active": "1"
-        },
-        {
-          "id": "1171",
-          "option_group_id": "153",
-          "label": "Vacancy",
-          "value": "2",
-          "name": "VACANCY",
-          "filter": "0",
-          "is_default": "0",
-          "weight": "2",
-          "is_optgroup": "0",
-          "is_reserved": "1",
-          "is_active": "1"
-        }
-      ]
-    };
   });
 
   beforeEach(inject(function(_$controller_, _$httpBackend_, $compile, $rootScope, $timeout) {
@@ -67,7 +35,7 @@ describe('crmCaseType', function() {
   describe('CaseTypeCtrl', function() {
     beforeEach(function () {
       apiCalls = {
-        caseTypeCategories: caseTypeCategories,
+        caseTypeCategories: getCaseTypeCategoriesSampleData(),
         actStatuses: {
           values: [
             {
@@ -444,6 +412,7 @@ describe('crmCaseType', function() {
     };
 
     beforeEach(function() {
+      var caseTypeCategories = getCaseTypeCategoriesSampleData();
       caseTypeCategoriesIndex = _.indexBy(caseTypeCategories.values, 'value');
       ctrl = $controller('CaseTypeListCtrl', {
         $scope: scope,
@@ -460,4 +429,40 @@ describe('crmCaseType', function() {
       expect(scope.caseTypeCategoriesIndex).toEqual(caseTypeCategoriesIndex);
     });
   });
+
+  /**
+   * Returns a sample api response for case type categories option values.
+   */
+  function getCaseTypeCategoriesSampleData() {
+    return {
+      values: [
+        {
+          "id": "1170",
+          "option_group_id": "153",
+          "label": "Workflow",
+          "value": "1",
+          "name": "WORKFLOW",
+          "filter": "0",
+          "is_default": "0",
+          "weight": "1",
+          "is_optgroup": "0",
+          "is_reserved": "1",
+          "is_active": "1"
+        },
+        {
+          "id": "1171",
+          "option_group_id": "153",
+          "label": "Vacancy",
+          "value": "2",
+          "name": "VACANCY",
+          "filter": "0",
+          "is_default": "0",
+          "weight": "2",
+          "is_optgroup": "0",
+          "is_reserved": "1",
+          "is_active": "1"
+        }
+      ]
+    };
+  }
 });
