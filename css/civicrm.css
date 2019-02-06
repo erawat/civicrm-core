@@ -3887,3 +3887,11 @@ ul.crm-sortable *:hover {
 ul.crm-sortable input {
   cursor: default !important;
 }
+
+ul.crm-sortable li::before {
+  font-family: "FontAwesome";
+  content: "\f0b2";
+  margin: 0 5px;
+  padding-right: 3px;
+  vertical-align: middle;
+}
