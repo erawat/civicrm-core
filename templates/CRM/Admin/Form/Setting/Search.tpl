@@ -68,10 +68,23 @@
             <td>{$form.smartGroupCacheTimeout.html}<br />
                 <span class="description">{ts}The number of minutes to cache smart group contacts. We strongly recommend that this value be greater than zero, since a value of zero means no caching at all. If your contact data changes frequently, you should set this value to at least 5 minutes.{/ts}</span></td>
         </tr>
+        <tr class="crm-search-setting-form-block-default_quicksearch_option">
+            <td class="label">{$form.default_quicksearch_option.label}</td>
+            <td>
+                {$form.default_quicksearch_option.html}
+                <p class="description">{$setting_descriptions.default_quicksearch_option}</p>
+            </td>
+        </tr>
         <tr class="crm-search-setting-form-block-quicksearch_options">
             <td class="label">{$form.quicksearch_options.label}</td>
             <td>
-                {$form.quicksearch_options.html}
+                <ul class="crm-search-setting-form-block-quicksearch_options-list{if $quicksearch_options_sortable} crm-sortable{/if}">
+                {foreach from=$form.quicksearch_options item=quicksearch_option}
+                    {if is_array($quicksearch_option) && array_key_exists('html', $quicksearch_option)}
+                    <li>{$quicksearch_option.html}</li>
+                    {/if}
+                {/foreach}
+                </ul>
                 <p class="description">{$setting_descriptions.quicksearch_options}</p>
             </td>
         </tr>
@@ -102,3 +115,12 @@
             <div class="crm-submit-buttons">{include file="CRM/common/formButtons.tpl" location="bottom"}</div>
 
 </div>
+
+{literal}
+<script type="text/javascript">
+CRM.$(function($) {
+    $('.crm-sortable').sortable();
+    $('.crm-sortable').disableSelection();
+});
+</script>
+{/literal}
