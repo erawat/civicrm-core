@@ -3878,20 +3878,22 @@ ul.crm-search-setting-form-block-quicksearch_options-list {
   list-style: none;
   margin: 0 !important;
   padding-left: 0 !important;
+  /* width: 60%; */
+  display: inline-block;
+}
+
+ul.crm-search-setting-form-block-quicksearch_options-list li {
+  margin: 0 2px 2px 2px;
+  padding: 0.4em;
+  height: 14px;
+  vertical-align: middle;
 }
 
 ul.crm-sortable *:hover {
   cursor: move;
 }
 
-ul.crm-sortable input {
+ul.crm-sortable li input,
+ul.crm-sortable li tt {
   cursor: default !important;
-}
-
-ul.crm-sortable li::before {
-  font-family: "FontAwesome";
-  content: "\f0b2";
-  margin: 0 5px;
-  padding-right: 3px;
-  vertical-align: middle;
 }
