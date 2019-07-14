@@ -221,32 +221,27 @@ class DynamicFKAuthorization implements EventSubscriberInterface {
       throw new \Civi\API\Exception\UnauthorizedException("Authorization failed on ($entity): Missing entity_id");
     }
 
-    /**
-     * @var \Exception $exception
-     */
-    $exception = NULL;
-    $self = $this;
-    \CRM_Core_Transaction::create(TRUE)->run(function($tx) use ($entity, $action, $entityId, &$exception, $self) {
-      // Just to be safe.
-      $tx->rollback();
-
-      $params = [
-        'version' => 3,
-        'check_permissions' => 1,
-        'id' => $entityId,
-      ];
-
-      $result = $self->kernel->run($entity, $self->getDelegatedAction($action), $params);
-      if ($result['is_error'] || empty($result['values'])) {
-        $exception = new \Civi\API\Exception\UnauthorizedException("Authorization failed on ($entity,$entityId)", [
-          'cause' => $result,
-        ]);
-      }
-    });
-
-    if ($exception) {
-      throw $exception;
+    if (!$this->isAuthorized($entity, $action, $entityId)) {
+      throw new \Civi\API\Exception\UnauthorizedException("Authorization failed on ($entity, $entityId)");
     }
+  }
+
+  /**
+   * @param string $entity
+   * @param string $action
+   * @param int $entityId
+   *
+   * @return bool
+   * @throws \Exception
+   */
+  private function isAuthorized($entity, $action, $entityId) {
+    $params = [
+      'version' => 3,
+      'check_permissions' => 1,
+      'id' => $entityId
+    ];
+
+    return $this->kernel->runAuthorize($entity, $this->getDelegatedAction($action), $params);
   }
 
   /**
