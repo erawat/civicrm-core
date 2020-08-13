@@ -70,6 +70,8 @@ class CRM_Admin_Form_MailSettings extends CRM_Admin_Form {
     ];
     $this->add('select', 'is_default', ts('Used For?'), $usedfor);
     $this->addField('activity_status', ['placeholder' => FALSE]);
+
+    $this->add('checkbox', 'is_non_case_email_skipped', ts('Skip emails which do not have a Case ID or Case token'));
   }
 
   /**
@@ -146,6 +148,7 @@ class CRM_Admin_Form_MailSettings extends CRM_Admin_Form {
       'is_ssl',
       'is_default',
       'activity_status',
+      'is_non_case_email_skipped',
     ];
 
     $params = [];
@@ -153,6 +156,7 @@ class CRM_Admin_Form_MailSettings extends CRM_Admin_Form {
       if (in_array($f, [
         'is_default',
         'is_ssl',
+        'is_non_case_email_skipped',
       ])) {
         $params[$f] = CRM_Utils_Array::value($f, $formValues, FALSE);
       }
