@@ -168,7 +168,7 @@ class CRM_Admin_Form_MailSettings extends CRM_Admin_Form {
     $params['domain_id'] = CRM_Core_Config::domainID();
 
     // assign id only in update mode
-    $status = ts('Your New  Email Settings have been saved.');
+    $status = ts('Your New Email Settings have been saved.');
     if ($this->_action & CRM_Core_Action::UPDATE) {
       $params['id'] = $this->_id;
       $status = ts('Your Email Settings have been updated.');
