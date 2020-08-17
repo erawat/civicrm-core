@@ -322,10 +322,11 @@ class CRM_Utils_Mail_Incoming {
 
   /**
    * @param $mail
+   * @param $createContact
    *
    * @return array
    */
-  public static function parseMailingObject(&$mail) {
+  public static function parseMailingObject(&$mail, $createContact = TRUE) {
 
     $config = CRM_Core_Config::singleton();
 
@@ -342,7 +343,7 @@ class CRM_Utils_Mail_Incoming {
     }
 
     $params['from'] = [];
-    self::parseAddress($mail->from, $field, $params['from'], $mail);
+    self::parseAddress($mail->from, $field, $params['from'], $mail, $createContact);
 
     // we definitely need a contact id for the from address
     // if we dont have one, skip this email
@@ -353,7 +354,7 @@ class CRM_Utils_Mail_Incoming {
     $emailFields = ['to', 'cc', 'bcc'];
     foreach ($emailFields as $field) {
       $value = $mail->$field;
-      self::parseAddresses($value, $field, $params, $mail);
+      self::parseAddresses($value, $field, $params, $mail, $createContact);
     }
 
     // define other parameters
@@ -396,8 +397,9 @@ class CRM_Utils_Mail_Incoming {
    * @param array $params
    * @param $subParam
    * @param $mail
+   * @param $createContact
    */
-  public static function parseAddress(&$address, &$params, &$subParam, &$mail) {
+  public static function parseAddress(&$address, &$params, &$subParam, &$mail, $createContact = TRUE) {
     // CRM-9484
     if (empty($address->email)) {
       return;
@@ -408,7 +410,7 @@ class CRM_Utils_Mail_Incoming {
 
     $contactID = self::getContactID($subParam['email'],
       $subParam['name'],
-      TRUE,
+      $createContact,
       $mail
     );
     $subParam['id'] = $contactID ? $contactID : NULL;
@@ -419,13 +421,14 @@ class CRM_Utils_Mail_Incoming {
    * @param $token
    * @param array $params
    * @param $mail
+   * @param $createContact
    */
-  public static function parseAddresses(&$addresses, $token, &$params, &$mail) {
+  public static function parseAddresses(&$addresses, $token, &$params, &$mail, $createContact = TRUE) {
     $params[$token] = [];
 
     foreach ($addresses as $address) {
       $subParam = [];
-      self::parseAddress($address, $params, $subParam, $mail);
+      self::parseAddress($address, $params, $subParam, $mail, $createContact);
       $params[$token][] = $subParam;
     }
   }
