@@ -52,16 +52,7 @@
       <tr class="crm-mail-settings-form-block-is_default"><td class="label">{$form.is_default.label}</td><td>{$form.is_default.html}</td></tr>
       <tr><td class="label">&nbsp;</td><td class="description">{ts}How this mail account will be used. Only one box may be used for bounce processing. It will also be used as the envelope email when sending mass mailings.{/ts}</td></tr>
 
-      <tr class="crm-mail-settings-form-block-is_non_case_email_skipped"><td class="label"><label for="is_non_case_email_skipped">{ts}Not case?{/ts}</label></td><td>{$form.is_non_case_email_skipped.html}{$form.is_non_case_email_skipped.label}</td></tr>
-      <tr class="crm-mail-settings-form-block-is_non_case_email_skipped-description">
-        <td class="label">&nbsp;</td>
-        <td class="description">
-          {ts}CiviCRM has functionality to file emails which contain the Case ID or Case Hash in the subject line in the format [case #1234] against a case record.{/ts}
-          {ts}Where the Case ID or Case Hash is not included CiviCRM will file the email against the contact record, by matching the email addresses on the email with any email addresses of Contact records in CiviCRM.{/ts}<br/>
-          {ts}Enabling this option will have CiviCRM skip any emails that do not have the Case ID or Case Hash so that the system will only process emails that can be placed on case records.{/ts}
-          {ts}Any emails that are not processed will be moved the ignored folder.{/ts}
-        </td>
-      </tr>
+      <tr class="crm-mail-settings-form-block-is_non_case_email_skipped"><td class="label">&nbsp;</td><td>{$form.is_non_case_email_skipped.html}{$form.is_non_case_email_skipped.label} {help id='is_non_case_email_skipped'}</td></tr>
 
       <tr class="crm-mail-settings-form-block-activity_status"><td class="label">{$form.activity_status.label}</td><td>{$form.activity_status.html}</td></tr>
     </table>
@@ -78,7 +69,6 @@
       var fields = [
         '.crm-mail-settings-form-block-activity_status',
         '.crm-mail-settings-form-block-is_non_case_email_skipped',
-        '.crm-mail-settings-form-block-is_non_case_email_skipped-description',
       ];
 
       $(fields.join(', '), $form).toggle($(this).val() === '0');
