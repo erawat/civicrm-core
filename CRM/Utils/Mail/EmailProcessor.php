@@ -237,7 +237,8 @@ class CRM_Utils_Mail_EmailProcessor {
           // Mail account may have 'Skip emails which do not have a Case ID
           // or Case token' option, if its enabled and email is not related
           // to cases - then we need to put email to ignored folder.
-          if (!empty($dao->is_non_case_email_skipped) && !self::isCaseEmail($mail)) {
+          $caseMailUtils = new CRM_Utils_Mail_CaseMail();
+          if (!empty($dao->is_non_case_email_skipped) && !$caseMailUtils->isCaseEmail($mail->subject)) {
             $store->markIgnored($key);
             continue;
           }
@@ -530,23 +531,6 @@ class CRM_Utils_Mail_EmailProcessor {
       }
     }
     return $text;
-  }
-
-  /**
-   * Checks if email is related to cases.
-   *
-   * @param object $mail
-   *   Email data.
-   *
-   * @return bool
-   *   TRUE if email subject contains case ID or case token, FALSE otherwise.
-   */
-  protected static function isCaseEmail ($mail) {
-    $subject = trim($mail->subject ?? '');
-    $res = preg_match('!Case ID [0-9]+$!i', $subject) === 1
-      || preg_match('!^\[.+ \#\S+\]!', $subject) === 1;
-
-    return $res;
   }
 
 }
