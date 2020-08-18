@@ -243,8 +243,8 @@ class CRM_Utils_Mail_EmailProcessor {
             continue;
           }
 
-          require_once 'CRM/Utils/DeprecatedUtils.php';
-          $params = _civicrm_api3_deprecated_activity_buildmailparams($mailParams, $emailActivityTypeId);
+          $paramsBuilder = new CRM_Utils_Mail_ParamsBuilder();
+          $params = $paramsBuilder->buildActivityParams($mailParams, $emailActivityTypeId);
 
           $params['version'] = 3;
           if (!empty($dao->activity_status)) {
