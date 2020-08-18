@@ -227,7 +227,7 @@ class CRM_Utils_Mail_EmailProcessor {
           // if its the activities that needs to be processed ..
           try {
             $createContact = !($dao->is_contact_creation_disabled_if_no_match ?? FALSE);
-            $mailParams = CRM_Utils_Mail_Incoming::parseMailingObject($mail, $createContact);
+            $mailParams = CRM_Utils_Mail_Incoming::parseMailingObject($mail, $createContact, FALSE);
           }
           catch (Exception $e) {
             echo $e->getMessage();
