@@ -85,6 +85,13 @@ class CRM_Utils_Mail_CaseMail {
    * @return array|string[]
    */
   public function getSubjectPatterns() {
+    // Allow others to change patterns using hook.
+    if (empty($this->subjectPatternsHooked)) {
+      $patterns = $this->subjectPatterns;
+      CRM_Utils_Hook::caseEmailSubjectPatterns($patterns);
+      $this->subjectPatternsHooked = $patterns;
+    }
+
     return !empty($this->subjectPatternsHooked)
       ? $this->subjectPatternsHooked
       : $this->subjectPatterns;
