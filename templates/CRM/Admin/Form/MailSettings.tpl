@@ -54,7 +54,7 @@
 
       <tr class="crm-mail-settings-form-block-is_contact_creation_disabled_if_no_match"><td class="label">&nbsp;</td><td>{$form.is_contact_creation_disabled_if_no_match.html}{$form.is_contact_creation_disabled_if_no_match.label}</td></tr>
 
-      <tr class="crm-mail-settings-form-block-activity_status"><td class="label">{$form.activity_status.label}</td><td>{$form.activity_status.html}</td></tr>
+      <tr class="crm-mail-settings-form-block-activity_status"><td class="label">&nbsp;</td><td>{$form.activity_status.label}<div>{$form.activity_status.html}</div></td></tr>
     </table>
 
     <div class="crm-submit-buttons">{include file="CRM/common/formButtons.tpl" location="bottom"}</div>
