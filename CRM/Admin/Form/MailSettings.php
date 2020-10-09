@@ -73,6 +73,7 @@ class CRM_Admin_Form_MailSettings extends CRM_Admin_Form {
 
     $this->add('checkbox', 'is_non_case_email_skipped', ts('Skip emails which do not have a Case ID or Case hash'));
     $this->add('checkbox', 'is_contact_creation_disabled_if_no_match', ts('Do not create new contacts when filing emails'));
+    $this->add('checkbox', 'is_original_eml_attached', ts('Store original email'));
   }
 
   /**
@@ -151,6 +152,7 @@ class CRM_Admin_Form_MailSettings extends CRM_Admin_Form {
       'activity_status',
       'is_non_case_email_skipped',
       'is_contact_creation_disabled_if_no_match',
+      'is_original_eml_attached',
     ];
 
     $params = [];
@@ -160,6 +162,7 @@ class CRM_Admin_Form_MailSettings extends CRM_Admin_Form {
         'is_ssl',
         'is_non_case_email_skipped',
         'is_contact_creation_disabled_if_no_match',
+        'is_original_eml_attached',
       ])) {
         $params[$f] = CRM_Utils_Array::value($f, $formValues, FALSE);
       }

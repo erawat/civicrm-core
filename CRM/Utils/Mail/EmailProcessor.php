@@ -175,16 +175,16 @@ class CRM_Utils_Mail_EmailProcessor {
         if ($usedfor == 1) {
           foreach ($mail->to as $address) {
             if (preg_match($regex, $address->email, $matches)) {
-              list($match, $action, $job, $queue, $hash) = $matches;
+              [$match, $action, $job, $queue, $hash] = $matches;
               break;
               // FIXME: the below elseifs should be dropped when we drop legacy support
             }
             elseif (preg_match($commonRegex, $address->email, $matches)) {
-              list($match, $action, $_, $job, $queue, $hash) = $matches;
+              [$match, $action, $_, $job, $queue, $hash] = $matches;
               break;
             }
             elseif (preg_match($subscrRegex, $address->email, $matches)) {
-              list($match, $action, $_, $job) = $matches;
+              [$match, $action, $_, $job] = $matches;
               break;
             }
           }
@@ -192,13 +192,13 @@ class CRM_Utils_Mail_EmailProcessor {
           // CRM-5471: if $matches is empty, it still might be a soft bounce sent
           // to another address, so scan the body for ‘Return-Path: …bounce-pattern…’
           if (!$matches and preg_match($rpRegex, $mail->generateBody(), $matches)) {
-            list($match, $action, $job, $queue, $hash) = $matches;
+            [$match, $action, $job, $queue, $hash] = $matches;
           }
 
           // if $matches is still empty, look for the X-CiviMail-Bounce header
           // CRM-9855
           if (!$matches and preg_match($rpXheaderRegex, $mail->generateBody(), $matches)) {
-            list($match, $action, $job, $queue, $hash) = $matches;
+            [$match, $action, $job, $queue, $hash] = $matches;
           }
           // With Mandrilla, the X-CiviMail-Bounce header is produced by generateBody
           // is base64 encoded
@@ -210,7 +210,7 @@ class CRM_Utils_Mail_EmailProcessor {
                 $p_file = $v_part->__get('fileName');
                 $c_file = file_get_contents($p_file);
                 if (preg_match($rpXheaderRegex, $c_file, $matches)) {
-                  list($match, $action, $job, $queue, $hash) = $matches;
+                  [$match, $action, $job, $queue, $hash] = $matches;
                 }
               }
             }
@@ -218,7 +218,7 @@ class CRM_Utils_Mail_EmailProcessor {
 
           // if all else fails, check Delivered-To for possible pattern
           if (!$matches and preg_match($regex, $mail->getHeader('Delivered-To'), $matches)) {
-            list($match, $action, $job, $queue, $hash) = $matches;
+            [$match, $action, $job, $queue, $hash] = $matches;
           }
         }
 
@@ -235,6 +235,18 @@ class CRM_Utils_Mail_EmailProcessor {
 
           // if its the activities that needs to be processed ..
           try {
+            // Generate eml from original email to attach it as a file to the
+            // activity after it would be created.
+            // (We have to do it now, because parseMailingObject() below would
+            // move all mail attachments from their original location (/tmp)
+            // to uploads dir, hence eml would be generated without attachments)
+            require_once 'CRM/Utils/Mail/EmlGenerator.php';
+            $emlGenerator = new CRM_Utils_Mail_EmlGenerator($mail);
+            if ($dao->is_original_eml_attached) {
+              $emlGenerator->generateEml();
+            }
+
+            // Parse mail params and create contacts if needed.
             $createContact = !($dao->is_contact_creation_disabled_if_no_match ?? FALSE);
             $mailParams = CRM_Utils_Mail_Incoming::parseMailingObject($mail, $createContact, FALSE);
           }
@@ -260,6 +272,7 @@ class CRM_Utils_Mail_EmailProcessor {
           }
           else {
             $matches = TRUE;
+            $emlGenerator->attachEmlToActivity($result['id']);
             CRM_Utils_Hook::emailProcessor('activity', $params, $mail, $result);
             echo "Processed as Activity: {$mail->subject}\n";
           }

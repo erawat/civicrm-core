@@ -69,6 +69,8 @@ class CRM_Upgrade_Incremental_php_FiveThirtyOne extends CRM_Upgrade_Incremental_
       'civicrm_mail_settings', 'is_non_case_email_skipped', "TINYINT DEFAULT 0 NOT NULL COMMENT 'Skip emails which do not have a Case ID or Case hash'");
     $this->addTask('Add is_contact_creation_disabled_if_no_match column to civicrm_mail_settings', 'addColumn',
       'civicrm_mail_settings', 'is_contact_creation_disabled_if_no_match', "TINYINT DEFAULT 0 NOT NULL COMMENT 'If this option is enabled, CiviCRM will not create new contacts when filing emails'");
+    $this->addTask('Add is_original_eml_attached column to civicrm_mail_settings', 'addColumn',
+      'civicrm_mail_settings', 'is_original_eml_attached', "TINYINT DEFAULT 0 NOT NULL COMMENT 'Store original email'");
   }
 
   public static function enableEwaySingleExtension(CRM_Queue_TaskContext $ctx) {

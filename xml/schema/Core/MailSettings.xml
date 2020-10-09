@@ -172,4 +172,15 @@
     <description>If this option is enabled, CiviCRM will not create new contacts when filing emails.</description>
     <add>5.31</add>
   </field>
+  <field>
+    <name>is_original_eml_attached</name>
+    <type>boolean</type>
+    <title>Store original email</title>
+    <default>0</default>
+    <html>
+      <type>CheckBox</type>
+    </html>
+    <description>If enabled CiviCRM will store a copy of the original email in .eml file format as an attachment on the activity.</description>
+    <add>5.31</add>
+  </field>
 </table>

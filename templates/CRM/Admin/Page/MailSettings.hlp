@@ -28,3 +28,11 @@
   <p>{ts}If this option is enabled, CiviCRM will not create new contacts ("from"/"to"/"cc"/"bcc") when filing emails.{/ts}</p>
   <p>{ts}If the email subject contains a valid Case ID or Case hash, the email will be filed against the case.{/ts}</p>
 {/htxt}
+
+{htxt id="is_original_eml_attached-title"}
+  {ts}Store original email{/ts}
+{/htxt}
+
+{htxt id="is_original_eml_attached"}
+  <p>{ts}If enabled CiviCRM will store a copy of the original email in .eml file format as an attachment on the activity.{/ts}</p>
+{/htxt}

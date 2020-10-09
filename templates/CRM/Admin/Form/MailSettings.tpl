@@ -56,6 +56,8 @@
 
       <tr class="crm-mail-settings-form-block-is_contact_creation_disabled_if_no_match"><td class="label">&nbsp;</td><td>{$form.is_contact_creation_disabled_if_no_match.html}{$form.is_contact_creation_disabled_if_no_match.label} {help id='is_contact_creation_disabled_if_no_match'}</td></tr>
 
+      <tr class="crm-mail-settings-form-block-is_original_eml_attached"><td class="label">&nbsp;</td><td>{$form.is_original_eml_attached.html}{$form.is_original_eml_attached.label} {help id='is_original_eml_attached'}</td></tr>
+
       <tr class="crm-mail-settings-form-block-activity_status"><td class="label">&nbsp;</td><td>{$form.activity_status.label}<div>{$form.activity_status.html}</div></td></tr>
     </table>
 
@@ -72,6 +74,7 @@
         '.crm-mail-settings-form-block-activity_status',
         '.crm-mail-settings-form-block-is_non_case_email_skipped',
         '.crm-mail-settings-form-block-is_contact_creation_disabled_if_no_match',
+        '.crm-mail-settings-form-block-is_original_eml_attached',
       ];
       $(fields.join(', '), $form).toggle($(this).val() === '0');
     }
