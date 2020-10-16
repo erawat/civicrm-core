@@ -317,6 +317,9 @@ class CRM_Activity_BAO_Activity extends CRM_Activity_DAO_Activity {
       $params['assignee_contact_id'] = array_unique($params['assignee_contact_id']);
     }
 
+    // Avoid too long subjects (to fit db column limits).
+    $params['subject'] = substr($params['subject'], 0, 255);
+
     $action = empty($params['id']) ? 'create' : 'edit';
     CRM_Utils_Hook::pre($action, 'Activity', $params['id'] ?? NULL, $params);
 
