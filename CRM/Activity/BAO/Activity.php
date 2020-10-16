@@ -185,7 +185,7 @@ class CRM_Activity_BAO_Activity extends CRM_Activity_DAO_Activity {
         $query = "DELETE FROM civicrm_entity_tag WHERE entity_table = 'civicrm_activity' AND entity_id = %1";
         $dao = CRM_Core_DAO::executeQuery($query, [1 => [$activity->id, 'Positive']]);
 
-        CRM_Core_BAO_File::deleteEntityFile('civicrm_activity', $activity->id);
+        CRM_Core_BAO_File::deleteEntityFile('civicrm_activity', $activity->id, NULL, NULL, TRUE);
       }
     }
     else {

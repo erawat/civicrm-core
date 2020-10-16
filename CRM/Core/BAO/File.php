@@ -133,10 +133,10 @@ class CRM_Core_BAO_File extends CRM_Core_DAO_File {
 
     // to get id's
     if ($overwrite && $fileTypeID) {
-      list($sql, $params) = self::sql($entityTable, $entityID, $fileTypeID);
+      [$sql, $params] = self::sql($entityTable, $entityID, $fileTypeID);
     }
     else {
-      list($sql, $params) = self::sql($entityTable, $entityID, 0);
+      [$sql, $params] = self::sql($entityTable, $entityID, 0);
     }
 
     $dao = CRM_Core_DAO::executeQuery($sql, $params);
@@ -207,7 +207,7 @@ class CRM_Core_BAO_File extends CRM_Core_DAO_File {
     CRM_Utils_Hook::pre('delete', 'File', $fileID, $fileDAO);
 
     // get the table and column name
-    list($tableName, $columnName, $groupID) = CRM_Core_BAO_CustomField::getTableColumnGroup($fieldID);
+    [$tableName, $columnName, $groupID] = CRM_Core_BAO_CustomField::getTableColumnGroup($fieldID);
 
     $entityFileDAO = new CRM_Core_DAO_EntityFile();
     $entityFileDAO->file_id = $fileID;
@@ -243,11 +243,12 @@ class CRM_Core_BAO_File extends CRM_Core_DAO_File {
    * @param int $entityID
    * @param int $fileTypeID
    * @param int $fileID
+   * @param bool $force
    *
    * @return bool
    *   Was file deleted?
    */
-  public static function deleteEntityFile($entityTable, $entityID, $fileTypeID = NULL, $fileID = NULL) {
+  public static function deleteEntityFile($entityTable, $entityID, $fileTypeID = NULL, $fileID = NULL, $force = FALSE) {
     $isDeleted = FALSE;
     if (empty($entityTable) || empty($entityID)) {
       return $isDeleted;
@@ -255,14 +256,18 @@ class CRM_Core_BAO_File extends CRM_Core_DAO_File {
 
     $config = CRM_Core_Config::singleton();
 
-    list($sql, $params) = self::sql($entityTable, $entityID, $fileTypeID, $fileID);
+    [$sql, $params] = self::sql($entityTable, $entityID, $fileTypeID, $fileID);
     $dao = CRM_Core_DAO::executeQuery($sql, $params);
 
     $cfIDs = [];
     $cefIDs = [];
+    $notRemovable = $force ? [] : self::getNotRemovableFileTypes();
     while ($dao->fetch()) {
-      $cfIDs[$dao->cfID] = $dao->uri;
-      $cefIDs[] = $dao->cefID;
+      // Users should not be able to delete files of some types via UI.
+      if ($force || !in_array($dao->file_type_id, $notRemovable)) {
+        $cfIDs[$dao->cfID] = $dao->uri;
+        $cefIDs[] = $dao->cefID;
+      }
     }
 
     if (!empty($cefIDs)) {
@@ -317,7 +322,7 @@ class CRM_Core_BAO_File extends CRM_Core_DAO_File {
 
     $config = CRM_Core_Config::singleton();
 
-    list($sql, $params) = self::sql($entityTable, $entityID, NULL);
+    [$sql, $params] = self::sql($entityTable, $entityID, NULL);
     $dao = CRM_Core_DAO::executeQuery($sql, $params);
     $results = [];
     while ($dao->fetch()) {
@@ -453,6 +458,8 @@ ORDER BY file_type_id, uri";
     }
 
     $form->assign('numAttachments', $numAttachments);
+    $form->assign('fileTypes', self::getFileTypes());
+    $form->assign('notRemovableFileTypes', self::getNotRemovableFileTypes());
 
     CRM_Core_BAO_Tag::getTags('civicrm_file', $tags, NULL,
       '&nbsp;&nbsp;', TRUE);
@@ -817,6 +824,45 @@ HEREDOC;
       }
     }
     return FALSE;
+  }
+
+  /**
+   * Returns available file types.
+   *
+   * @return array[]
+   *   Array of file types, each file type is an option value data.
+   */
+  public static function getFileTypes() {
+    // The file_type_id column exists in civicrm_file db table, but never used
+    // and there are no actual types defined. So let's return a value directly.
+    $fileTypes = [
+      1 => [
+        'id' => 1,
+        'label' => 'Original email',
+      ],
+      // This item is added, because when type is empty we still need a label.
+      'default' => [
+        'id' => NULL,
+        'label' => 'Current Attachment(s)',
+      ],
+    ];
+
+    return $fileTypes;
+  }
+
+  /**
+   * Returns type ids of files that user should not be able to remove.
+   *
+   * @return int[]
+   *   File type ids.
+   */
+  public static function getNotRemovableFileTypes() {
+    $fileTypeIds = [
+      // The 'original email' file type.
+      1,
+    ];
+
+    return $fileTypeIds;
   }
 
 }

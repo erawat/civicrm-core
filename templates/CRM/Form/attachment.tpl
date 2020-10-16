@@ -9,23 +9,38 @@
 *}
 {if $form.attachFile_1 OR $currentAttachmentInfo}
 {if $action EQ 4 AND $currentAttachmentInfo} {* For View action we exclude the form fields and just show any current attachments. *}
-    <tr>
-        <td class="label"><label>{ts}Current Attachment(s){/ts}</label></td>
-        <td class="view-value">
-          {foreach from=$currentAttachmentInfo key=attKey item=attVal}
-                <div id="attachStatusMesg" class="status hiddenElement"></div>
-                <div id="attachFileRecord_{$attVal.fileID}">
-                  <strong><a href="{$attVal.url}"><i class="crm-i {$attVal.icon}" aria-hidden="true"></i> {$attVal.cleanName}</a></strong>
-                  {if $attVal.description}&nbsp;-&nbsp;{$attVal.description}{/if}
-                  {if !empty($attVal.tag)}
-                    <br />
-                    {ts}Tags{/ts}: {$attVal.tag}
-                    <br />
-                  {/if}
-                </div>
-          {/foreach}
-        </td>
-    </tr>
+    {assign var=curFileTypeID value=-1}
+    {* Files in this array should be sorted by fileTypeID for proper output *}
+    {foreach from=$currentAttachmentInfo key=attKey item=attVal name="attachments"}
+      {if $attVal.fileTypeID NEQ $curFileTypeID}
+        {assign var=curFileTypeID value=$attVal.fileTypeID}
+        {assign var=curFileTypeLabel value=$fileTypes.$curFileTypeID.label}
+        {if !$curFileTypeLabel}
+          {assign var=curFileTypeLabel value=$fileTypes.default.label}
+        {/if}
+        {if !$smarty.foreach.attachments.first}
+          </td>
+        </tr>
+        {/if}
+        <tr>
+          <td class="label"><label>{ts}{$curFileTypeLabel}{/ts}</label></td>
+          <td class="view-value">
+      {/if}
+            <div id="attachStatusMesg" class="status hiddenElement"></div>
+            <div id="attachFileRecord_{$attVal.fileID}">
+              <strong><a href="{$attVal.url}"><i class="crm-i {$attVal.icon}" aria-hidden="true"></i> {$attVal.cleanName}</a></strong>
+              {if $attVal.description}&nbsp;-&nbsp;{$attVal.description}{/if}
+              {if !empty($attVal.tag)}
+                <br />
+                {ts}Tags{/ts}: {$attVal.tag}
+                <br />
+              {/if}
+            </div>
+      {if $smarty.foreach.attachments.last}
+          </td>
+        </tr>
+      {/if}
+    {/foreach}
 {elseif $action NEQ 4}
     {if $context EQ 'pcpCampaign'}
       {capture assign=attachTitle}{ts}Include a Picture or an Image{/ts}{/capture}
@@ -80,12 +95,28 @@
         {/section}
 
       {/if}
-      {if $currentAttachmentInfo}
+
+      {* Count attachments first *}
+      {assign var=attachmentCount value=0}
+      {foreach from=$currentAttachmentInfo key=attKey item=attVal}
+        {if $attVal.fileTypeID|in_array:$notRemovableFileTypes }
+          {continue}
+        {/if}
+        {assign var=attachmentCount value=$attachmentCount+1}
+      {/foreach}
+
+      {* Print attachments *}
+      {if $currentAttachmentInfo AND $attachmentCount}
         <tr class="attachment-fieldset solid-border-top"><td colspan="2"></td></tr>
         <tr>
-            <td class="label">{ts}Current Attachment(s){/ts}</td>
+            <td class="label">{ts}{$fileTypes.default.label}{/ts}</td>
             <td class="view-value">
-          {foreach from=$currentAttachmentInfo key=attKey item=attVal}
+              {foreach from=$currentAttachmentInfo key=attKey item=attVal}
+                {* User should not be able to edit or delete attachments of some types *}
+                {if $attVal.fileTypeID|in_array:$notRemovableFileTypes }
+                  {continue}
+                {/if}
+                {assign var=attachmentCount value=$attachmentCount+1}
                 <div class="crm-attachment-wrapper crm-entity" id="file_{$attVal.fileID}">
                   <strong><a class="crm-attachment" href="{$attVal.url}">{$attVal.cleanName}</a></strong>
                   {if $attVal.description}&nbsp;-&nbsp;{$attVal.description}{/if}
@@ -98,14 +129,15 @@
                     <br/>
                   {/if}
                 </div>
-          {/foreach}
+              {/foreach}
             </td>
         </tr>
+        {if $attachmentCount}
         <tr>
-            <td class="label">&nbsp;</td>
-            <td>{$form.is_delete_attachment.html}&nbsp;{$form.is_delete_attachment.label}
-            </td>
+            <td class="label luna33">&nbsp;</td>
+            <td>{$form.is_delete_attachment.html}&nbsp;{$form.is_delete_attachment.label}</td>
         </tr>
+        {/if}
       {/if}
       </table>
     </div>
