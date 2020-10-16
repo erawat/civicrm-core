@@ -324,6 +324,7 @@ class CRM_Core_BAO_File extends CRM_Core_DAO_File {
       $fileHash = self::generateFileHash($dao->entity_id, $dao->cfID);
       $result['fileID'] = $dao->cfID;
       $result['entityID'] = $dao->cefID;
+      $result['fileTypeID'] = $dao->file_type_id;
       $result['mime_type'] = $dao->mime_type;
       $result['fileName'] = $dao->uri;
       $result['description'] = $dao->description;
@@ -368,32 +369,25 @@ class CRM_Core_BAO_File extends CRM_Core_DAO_File {
    * @return array
    */
   public static function sql($entityTable, $entityID, $fileTypeID = NULL, $fileID = NULL) {
+    $sql = "
+SELECT    CF.id as cfID,
+          CF.uri as uri,
+          CF.file_type_id as file_type_id,
+          CF.mime_type as mime_type,
+          CF.description as description,
+          CEF.id as cefID,
+          CEF.entity_table as entity_table,
+          CEF.entity_id as entity_id
+FROM      civicrm_file AS CF
+LEFT JOIN civicrm_entity_file AS CEF ON ( CEF.file_id = CF.id )";
+
     if ($entityTable == '*') {
       // $entityID is the ID of a specific file
-      $sql = "
-SELECT    CF.id as cfID,
-           CF.uri as uri,
-           CF.mime_type as mime_type,
-           CF.description as description,
-           CEF.id as cefID,
-           CEF.entity_table as entity_table,
-           CEF.entity_id as entity_id
-FROM      civicrm_file AS CF
-LEFT JOIN civicrm_entity_file AS CEF ON ( CEF.file_id = CF.id )
+      $sql .= "
 WHERE     CF.id = %2";
-
     }
     else {
-      $sql = "
-SELECT    CF.id as cfID,
-           CF.uri as uri,
-           CF.mime_type as mime_type,
-           CF.description as description,
-           CEF.id as cefID,
-           CEF.entity_table as entity_table,
-           CEF.entity_id as entity_id
-FROM      civicrm_file AS CF
-LEFT JOIN civicrm_entity_file AS CEF ON ( CEF.file_id = CF.id )
+      $sql .= "
 WHERE     CEF.entity_table = %1
 AND       CEF.entity_id    = %2";
     }
@@ -412,6 +406,9 @@ AND       CEF.entity_id    = %2";
       $sql .= " AND CF.id = %4";
       $params[4] = [$fileID, 'Integer'];
     }
+
+    $sql .= "
+ORDER BY file_type_id, uri";
 
     return [$sql, $params];
   }
