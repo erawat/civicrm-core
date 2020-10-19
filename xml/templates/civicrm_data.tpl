@@ -854,6 +854,8 @@ VALUES
    (@option_group_id_aco, '{ts escape="sql"}Activity Assignees{/ts}', 1, 'Activity Assignees', NULL, 0, NULL, 1, NULL, 0, 0, 1, NULL, NULL, NULL),
    (@option_group_id_aco, '{ts escape="sql"}Activity Source{/ts}', 2, 'Activity Source', NULL, 0, NULL, 2, NULL, 0, 0, 1, NULL, NULL, NULL),
    (@option_group_id_aco, '{ts escape="sql"}Activity Targets{/ts}', 3, 'Activity Targets', NULL, 0, NULL, 3, NULL, 0, 0, 1, NULL, NULL, NULL),
+   (@option_group_id_aco, '{ts escape="sql"}Activity CC{/ts}', 4, 'Activity CC', NULL, 0, NULL, 4, NULL, 0, 0, 1, NULL, NULL, NULL),
+   (@option_group_id_aco, '{ts escape="sql"}Activity BCC{/ts}', 5, 'Activity BCC', NULL, 0, NULL, 5, NULL, 0, 0, 1, NULL, NULL, NULL),
 
 -- financial_account_type
 -- grouping field is specific to Quickbooks for mapping to .iif format

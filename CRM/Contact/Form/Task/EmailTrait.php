@@ -389,11 +389,9 @@ trait CRM_Contact_Form_Task_EmailTrait {
 
     $ccArray = $formValues['cc_id'] ? explode(',', $formValues['cc_id']) : [];
     $cc = $this->getEmailString($ccArray);
-    $additionalDetails = empty($ccArray) ? '' : "\ncc : " . $this->getEmailUrlString($ccArray);
 
     $bccArray = $formValues['bcc_id'] ? explode(',', $formValues['bcc_id']) : [];
     $bcc = $this->getEmailString($bccArray);
-    $additionalDetails .= empty($bccArray) ? '' : "\nbcc : " . $this->getEmailUrlString($bccArray);
 
     // format contact details array to handle multiple emails from same contact
     $formattedContactDetails = [];
@@ -425,7 +423,7 @@ trait CRM_Contact_Form_Task_EmailTrait {
       $cc,
       $bcc,
       array_keys($this->_toContactDetails),
-      $additionalDetails,
+      NULL,
       $this->getVar('_contributionIds') ?? [],
       CRM_Utils_Array::value('campaign_id', $formValues),
       $this->getVar('_caseId')

@@ -54,7 +54,7 @@
     <name>record_type_id</name>
     <type>int unsigned</type>
     <title>Record Type ID</title>
-    <comment>Nature of this contact's role in the activity: 1 assignee, 2 creator, 3 focus or target.</comment>
+    <comment>Nature of this contact's role in the activity: 1 assignee, 2 creator, 3 focus or target, 4 CC, 5 BCC.</comment>
     <pseudoconstant>
       <optionGroupName>activity_contacts</optionGroupName>
     </pseudoconstant>

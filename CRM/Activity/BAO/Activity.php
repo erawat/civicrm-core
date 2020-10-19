@@ -82,6 +82,8 @@ class CRM_Activity_BAO_Activity extends CRM_Activity_DAO_Activity {
       $targetID = CRM_Utils_Array::key('Activity Targets', $activityContacts);
       $sourceID = CRM_Utils_Array::key('Activity Source', $activityContacts);
       $assigneeID = CRM_Utils_Array::key('Activity Assignees', $activityContacts);
+      $ccID  = CRM_Utils_Array::key('Activity CC', $activityContacts);
+      $bccID = CRM_Utils_Array::key('Activity BCC', $activityContacts);
 
       // TODO: at some stage we'll have to deal
       //       with multiple values for assignees and targets, but
@@ -310,11 +312,16 @@ class CRM_Activity_BAO_Activity extends CRM_Activity_DAO_Activity {
       $params['priority_id'] = array_search('Normal', $priority);
     }
 
-    if (!empty($params['target_contact_id']) && is_array($params['target_contact_id'])) {
-      $params['target_contact_id'] = array_unique($params['target_contact_id']);
-    }
-    if (!empty($params['assignee_contact_id']) && is_array($params['assignee_contact_id'])) {
-      $params['assignee_contact_id'] = array_unique($params['assignee_contact_id']);
+    $other_contact_types = [
+      'target_contact_id',
+      'assignee_contact_id',
+      'cc_contact_id',
+      'bcc_contact_id',
+    ];
+    foreach ($other_contact_types as $contact_type) {
+      if (!empty($params[$contact_type]) && is_array($params[$contact_type])) {
+        $params[$contact_type] = array_unique($params[$contact_type]);
+      }
     }
 
     $action = empty($params['id']) ? 'create' : 'edit';
@@ -345,6 +352,8 @@ class CRM_Activity_BAO_Activity extends CRM_Activity_DAO_Activity {
       'source_contact_id' => CRM_Core_PseudoConstant::getKey('CRM_Activity_BAO_ActivityContact', 'record_type_id', 'Activity Source'),
       'assignee_contact_id' => CRM_Core_PseudoConstant::getKey('CRM_Activity_BAO_ActivityContact', 'record_type_id', 'Activity Assignees'),
       'target_contact_id' => CRM_Core_PseudoConstant::getKey('CRM_Activity_BAO_ActivityContact', 'record_type_id', 'Activity Targets'),
+      'cc_contact_id' => CRM_Core_PseudoConstant::getKey('CRM_Activity_BAO_ActivityContact', 'record_type_id', 'Activity CC'),
+      'bcc_contact_id' => CRM_Core_PseudoConstant::getKey('CRM_Activity_BAO_ActivityContact', 'record_type_id', 'Activity BCC'),
     ];
 
     $activityContacts = [];
@@ -449,16 +458,19 @@ class CRM_Activity_BAO_Activity extends CRM_Activity_DAO_Activity {
       $recentContactId = $params['source_contact_id'] ?? NULL;
     }
 
-    if (isset($params['assignee_contact_id'])) {
-      if (is_array($params['assignee_contact_id'])) {
-        $msgs[] = "assignee=" . implode(',', $params['assignee_contact_id']);
-      }
-      else {
-        $msgs[] = "assignee={$params['assignee_contact_id']}";
+    $other_contact_types = [
+      'assignee' => 'assignee_contact_id',
+      'cc' => 'cc_contact_id',
+      'bcc' => 'bcc_contact_id',
+    ];
+    foreach ($other_contact_types as $label => $contact_type) {
+      if (!empty($params['assignee_contact_id'])) {
+        $msg = is_array($params[$contact_type]) ? implode(',', $params[$contact_type]) : $params[$contact_type];
+        $msgs[] = $label . '=' . $msg;
       }
     }
-    $logMsg .= implode(', ', $msgs);
 
+    $logMsg .= implode(', ', $msgs);
     self::logActivityAction($result, $logMsg);
 
     if (!empty($params['custom']) &&
@@ -949,12 +961,14 @@ class CRM_Activity_BAO_Activity extends CRM_Activity_DAO_Activity {
    * @param int $campaignID
    * @param array $attachments
    * @param int $caseID
+   * @param int $ccContactID
+   * @param int $bccContactID
    *
    * @return int
    *   The created activity ID
    * @throws \CRM_Core_Exception
    */
-  public static function createEmailActivity($sourceContactID, $subject, $html, $text, $additionalDetails, $campaignID, $attachments, $caseID) {
+  public static function createEmailActivity($sourceContactID, $subject, $html, $text, $additionalDetails, $campaignID, $attachments, $caseID, $ccContactID = NULL, $bccContactID = NULL) {
     $activityTypeID = CRM_Core_PseudoConstant::getKey('CRM_Activity_BAO_Activity', 'activity_type_id', 'Email');
 
     // CRM-6265: save both text and HTML parts in details (if present)
@@ -975,6 +989,13 @@ class CRM_Activity_BAO_Activity extends CRM_Activity_DAO_Activity {
       'status_id' => CRM_Core_PseudoConstant::getKey('CRM_Activity_BAO_Activity', 'status_id', 'Completed'),
       'campaign_id' => $campaignID,
     ];
+
+    if (!empty($ccContactID)) {
+      $activityParams['cc_contact_id'] = $ccContactID;
+    }
+    if (!empty($bccContactID)) {
+      $activityParams['bcc_contact_id'] = $bccContactID;
+    }
     if (!empty($caseID)) {
       $activityParams['case_id'] = $caseID;
     }
@@ -1050,7 +1071,10 @@ class CRM_Activity_BAO_Activity extends CRM_Activity_DAO_Activity {
       $userID = CRM_Core_Session::getLoggedInContactID();
     }
 
-    list($fromDisplayName, $fromEmail, $fromDoNotEmail) = CRM_Contact_BAO_Contact::getContactDetails($userID);
+    $ccID = $cc ? CRM_Contact_BAO_Contact::getContactIdByEmail($cc) : 0;
+    $bccID = $cc ? CRM_Contact_BAO_Contact::getContactIdByEmail($bcc) : 0;
+
+    [$fromDisplayName, $fromEmail, $fromDoNotEmail] = CRM_Contact_BAO_Contact::getContactDetails($userID);
     if (!$fromEmail) {
       return [count($contactDetails), 0, count($contactDetails)];
     }
@@ -1071,7 +1095,7 @@ class CRM_Activity_BAO_Activity extends CRM_Activity_DAO_Activity {
     }
 
     //create the meta level record first ( email activity )
-    $activityID = self::createEmailActivity($userID, $subject, $html, $text, $additionalDetails, $campaignId, $attachments, $caseId);
+    $activityID = self::createEmailActivity($userID, $subject, $html, $text, $additionalDetails, $campaignId, $attachments, $caseId, $ccID, $bccID);
 
     $returnProperties = [];
     if (isset($messageToken['contact'])) {
@@ -1091,7 +1115,7 @@ class CRM_Activity_BAO_Activity extends CRM_Activity_DAO_Activity {
     // get token details for contacts, call only if tokens are used
     $details = [];
     if (!empty($returnProperties) || !empty($tokens) || !empty($allTokens)) {
-      list($details) = CRM_Utils_Token::getTokenDetails(
+      [$details] = CRM_Utils_Token::getTokenDetails(
         $contactIds,
         $returnProperties,
         NULL, NULL, FALSE,
@@ -1279,7 +1303,7 @@ class CRM_Activity_BAO_Activity extends CRM_Activity_DAO_Activity {
     // get token details for contacts, call only if tokens are used
     $tokenDetails = [];
     if (!empty($returnProperties) || !empty($tokens)) {
-      list($tokenDetails) = CRM_Utils_Token::getTokenDetails($contactIds,
+      [$tokenDetails] = CRM_Utils_Token::getTokenDetails($contactIds,
         $returnProperties,
         NULL, NULL, FALSE,
         $messageToken,
@@ -1450,7 +1474,7 @@ class CRM_Activity_BAO_Activity extends CRM_Activity_DAO_Activity {
     $cc = NULL,
     $bcc = NULL
   ) {
-    list($toDisplayName, $toEmail, $toDoNotEmail) = CRM_Contact_BAO_Contact::getContactDetails($toID);
+    [$toDisplayName, $toEmail, $toDoNotEmail] = CRM_Contact_BAO_Contact::getContactDetails($toID);
     if ($emailAddress) {
       $toEmail = trim($emailAddress);
     }
@@ -1733,7 +1757,7 @@ WHERE      activity.id IN ($activityIds)";
         }
 
         if ($entityObj->owner_membership_id) {
-          list($displayName) = CRM_Contact_BAO_Contact::getDisplayAndImage(CRM_Core_DAO::getFieldValue('CRM_Member_DAO_Membership', $entityObj->owner_membership_id, 'contact_id'));
+          [$displayName] = CRM_Contact_BAO_Contact::getDisplayAndImage(CRM_Core_DAO::getFieldValue('CRM_Member_DAO_Membership', $entityObj->owner_membership_id, 'contact_id'));
           $subject .= sprintf(' (by %s)', $displayName);
         }
 

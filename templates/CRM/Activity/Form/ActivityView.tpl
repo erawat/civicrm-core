@@ -15,16 +15,26 @@
         <tr>
             <td class="label">{ts}Added by{/ts}</td><td class="view-value">{$values.source_contact}</td>
         </tr>
-       {if $values.target_contact_value}
-           <tr>
+        {if $values.target_contact_value}
+            <tr>
                 <td class="label">{ts}With Contact{/ts}</td><td class="view-value">{$values.target_contact_value}</td>
-           </tr>
-       {/if}
-       {if $values.mailingId}
-           <tr>
+            </tr>
+        {/if}
+        {if $values.mailingId}
+            <tr>
                 <td class="label">{ts}With Contact{/ts}</td><td class="view-value"><a href="{$values.mailingId}" title="{ts}View Mailing Report{/ts}"><i class="crm-i fa-chevron-right" aria-hidden="true"></i>{ts}Mailing Report{/ts}</a></td>
-           </tr>
-       {/if}
+            </tr>
+        {/if}
+        {if $values.cc_contact_id}
+          <tr>
+              <td class="label">{ts}CC{/ts}</td><td class="view-value">{$values.cc_contact_id}</td>
+          </tr>
+        {/if}
+        {if $values.bcc_contact_id}
+          <tr>
+              <td class="label">{ts}BCC{/ts}</td><td class="view-value">{$values.bcc_contact_id}</td>
+          </tr>
+        {/if}
         <tr>
             <td class="label">{ts}Subject{/ts}</td><td class="view-value">{$values.subject}</td>
         </tr>
@@ -70,9 +80,8 @@
                 </td>
             </tr>
             <tr>
-                <td class="label">{ts}Details{/ts}</td>
+                <td class="label">(101){ts}Details{/ts}</td>
                 <td class="view-value report">
-
                     <fieldset>
                     <legend>{ts}Content / Components{/ts}</legend>
                     {strip}

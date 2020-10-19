@@ -147,6 +147,8 @@ class CRM_Core_DAO_MailSettings extends CRM_Core_DAO {
    */
   public $is_contact_creation_disabled_if_no_match;
 
+  public $is_original_eml_attached;
+
   /**
    * Class constructor.
    */
@@ -432,6 +434,21 @@ class CRM_Core_DAO_MailSettings extends CRM_Core_DAO {
           'type' => CRM_Utils_Type::T_BOOLEAN,
           'title' => ts('Do not create new contacts when filing emails'),
           'where' => 'civicrm_mail_settings.is_contact_creation_disabled_if_no_match',
+          'default' => '0',
+          'table_name' => 'civicrm_mail_settings',
+          'entity' => 'MailSettings',
+          'bao' => 'CRM_Core_BAO_MailSettings',
+          'localizable' => 0,
+          'html' => [
+            'type' => 'CheckBox',
+          ],
+          'add' => '5.31',
+        ],
+        'is_original_eml_attached' => [
+          'name' => 'is_original_eml_attached',
+          'type' => CRM_Utils_Type::T_BOOLEAN,
+          'title' => ts('Store original email'),
+          'where' => 'civicrm_mail_settings.is_original_eml_attached',
           'default' => '0',
           'table_name' => 'civicrm_mail_settings',
           'entity' => 'MailSettings',
