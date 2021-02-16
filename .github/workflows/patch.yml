@@ -2,10 +2,10 @@ name: Packaging
 on:
   push:
     branches:
-      - 5.35.0-patches
+      - 5.35.0-rc-patches
 
 env:
-  base_version: 5.35.0
+  base_version: 5.35.0-rc
 
 jobs:
   build:
