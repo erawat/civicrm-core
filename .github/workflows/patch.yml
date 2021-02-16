@@ -5,7 +5,7 @@ on:
       - 5.35.0-patches
 
 env:
-  base_version: 5.35
+  base_version: 5.35.0
 
 jobs:
   build:
