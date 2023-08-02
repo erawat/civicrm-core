@@ -93,6 +93,18 @@ class CRM_Financial_BAO_Payment {
       $contributionStatus = 'Pending';
       self::updateContributionStatus($contribution['id'], $contributionStatus);
     }
+
+    $splittedTrnx = NULL;
+    if ($params['total_amount'] < 0 && Civi::settings()->get('always_post_to_accounts_receivable')) {
+      $splitPaymentTrxnParams = array_merge([], $paymentTrxnParams);
+      $splitPaymentTrxnParams['to_financial_account_id'] = $accountsReceivableAccount;
+      $splitPaymentTrxnParams['from_financial_account_id'] = NULL;
+      //$splitPaymentTrxnParams['from_financial_account_id'] = CRM_Financial_BAO_FinancialAccount::getFinancialAccountForFinancialTypeByRelationship($contribution['financial_type_id'], 'Income Account is');
+      $splitPaymentTrxnParams['is_payment'] = 0;
+
+      $splittedTrnx = CRM_Core_BAO_FinancialTrxn::create($splitPaymentTrxnParams);
+    }
+
     $trxn = CRM_Core_BAO_FinancialTrxn::create($paymentTrxnParams);
 
     if ($params['total_amount'] < 0 && !empty($params['cancelled_payment_id'])) {
@@ -141,6 +153,15 @@ class CRM_Financial_BAO_Payment {
         ];
 
         civicrm_api3('EntityFinancialTrxn', 'create', $eftParams);
+
+        if ($splittedTrnx) {
+          $eftParams = [
+            'financial_trxn_id' => $splittedTrnx->id,
+          ];
+
+          civicrm_api3('EntityFinancialTrxn', 'create', $eftParams);
+        }
+
         if ($currentFinancialItemStatus && 'Paid' !== $currentFinancialItemStatus) {
           $newStatus = $value['allocation'] < $value['balance'] ? 'Partially paid' : 'Paid';
           FinancialItem::update(FALSE)
@@ -611,7 +632,7 @@ class CRM_Financial_BAO_Payment {
       'financial_trxn_id.id' => $params['cancelled_payment_id'],
     ])['values'];
     foreach ($entityFinancialTrxns as $entityFinancialTrxn) {
-      civicrm_api3('EntityFinancialTrxn', 'create', [
+      $item = civicrm_api3('EntityFinancialTrxn', 'create', [
         'entity_table' => 'civicrm_financial_item',
         'entity_id' => $entityFinancialTrxn['entity_id'],
         'amount' => -$entityFinancialTrxn['amount'],
